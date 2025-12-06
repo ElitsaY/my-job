@@ -1,0 +1,87 @@
+export interface Internship {
+  title: string;
+  url: string;
+}
+
+export const internshipData: readonly Internship[] = [
+  {
+    "title": "Software Engineering Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/118106937735684806-software-engineering-intern-phd-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Research Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/100216277234000582-research-intern-phd-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Business Intern, 2026 (English)",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/89075959788905158-business-intern-2026-english?distance=50&q=internship"
+  },
+  {
+    "title": "Associate Product Marketing Manager Intern, Summer 2026 (English)",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/130952992584016582-associate-product-marketing-manager-intern-summer-2026-english?distance=50&q=internship"
+  },
+  {
+    "title": "Software Developer Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/122888894193509062-software-developer-intern-phd-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "MBA Intern, 2026 (Mandarin, English)",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/110317982197916358-mba-intern-2026-mandarin-english?distance=50&q=internship"
+  },
+  {
+    "title": "MBA Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/111504347728093894-mba-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "MBA Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/111244902712386246-mba-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Product Design Engineering Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/113501982114620102-product-design-engineering-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Research Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/137871939145212614-research-intern-phd-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Software Engineering Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/78833989648818886-software-engineering-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Software Engineering Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/111087016493359814-software-engineering-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Software Engineering Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/102119429319336646-software-engineering-intern-phd-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Software Engineering Intern, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/95392037762671302-software-engineering-intern-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Silicon Engineering Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/72406635514864326-silicon-engineering-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Data Center Technician Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/89704774139552454-data-center-technician-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Software Engineering PhD Intern, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/129234040505934534-software-engineering-phd-intern-summer-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Hardware Engineering Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/120538856532386502-hardware-engineering-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "User Experience Design Summer Intern, 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/120315873641538246-user-experience-design-summer-intern-2026?distance=50&q=internship"
+  },
+  {
+    "title": "Hardware Engineering Intern, PhD, Summer 2026",
+    "url": "https://www.google.com/about/careers/applications/jobs/results/133210998222791366-hardware-engineering-intern-phd-summer-2026?distance=50&q=internship"
+  }
+];
