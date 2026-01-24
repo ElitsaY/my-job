@@ -1,0 +1,1 @@
+python templates/table.py ./index.html ./google_internships.csv
