@@ -7,7 +7,7 @@ def generate_table_rows(filename: str) -> str:
     for _, row in df.iterrows():
         yield f'''
         <tr>
-            <td class="company" data-label="Company"><a href="{row['company']}"><strong>{row['job_title']}</strong></a></td>
+            <td class="company" data-label="Company">{row['company']}</td>
             <td data-label="Position">{row['job_title']}</td>
             <td data-label="Location">{row['location']}</td>
             <td class="apply-cell" data-label="Posting"><a href="{row['job_link']}" target="_blank" rel="noopener noreferrer"><img src="https://i.imgur.com/JpkfjIq.png" alt="Apply" class="apply-btn"/></a></td>
