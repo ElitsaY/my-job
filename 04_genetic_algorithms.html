@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Genetic Algorithms</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #10b981; /* Green theme for Genetic/Biology theme */
+            --soft: rgba(16, 185, 129, 0.05);
+            --code-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: var(--soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .diagram-container {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: #fff;
+            border-radius: 12px;
+        }
+
+        .diagram-container img {
+            max-width: 100vw;
+            height: auto;
+            border-radius: 8px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-item {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .comparison-table th, .comparison-table td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .comparison-table th { background: #f8fafc; font-weight: 600; color: var(--muted); }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 5px;
+            border-radius: 4px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9em;
+            color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Genetic Algorithms</h1>
+    <p style="color: var(--muted)">Lab Focus: Evolutionary search, selection pressure, and recombination strategies.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Introduction</h2>
+        <p>Genetic Algorithms (GA) are metaheuristic search techniques inspired by the process of <strong>natural selection</strong>. They are used to find high-quality solutions for optimization and search problems.</p>
+        
+        
+
+[Image of DNA chromosome and gene structure diagram]
+
+
+        <div class="grid-3">
+            <div class="info-item">
+                <span class="badge">Gene</span>
+                <p>A single parameter or feature of a solution (e.g., a specific bit or coordinate).</p>
+            </div>
+            <div class="info-item">
+                <span class="badge">Chromosome</span>
+                <p>A complete set of genes representing one individual potential solution.</p>
+            </div>
+            <div class="info-item">
+                <span class="badge">Population</span>
+                <p>The total set of chromosomes currently being evaluated.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. The GA Lifecycle</h2>
+        <p>GAs operate through a repetitive cycle of evaluation and reproduction to "evolve" better solutions over time.</p>
+        
+        <div class="diagram-container">
+            
+        </div>
+
+        <h3>2.1 Selection Mechanisms</h3>
+        <p>Selection determines which individuals get to pass their genetic material to the next generation based on <strong>Selection Pressure</strong>.</p>
+        
+        
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Method</th>
+                    <th>Concept</th>
+                    <th>Pros</th>
+                    <th>Cons</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Roulette Wheel</strong></td>
+                    <td>Probability proportional to fitness</td>
+                    <td>Simple, intuitive</td>
+                    <td>Premature convergence</td>
+                </tr>
+                <tr>
+                    <td><strong>Tournament</strong></td>
+                    <td>Best of a random subset wins</td>
+                    <td>Controllable pressure via <code>k</code></td>
+                    <td>Potential diversity loss</td>
+                </tr>
+                <tr>
+                    <td><strong>Rank-Based</strong></td>
+                    <td>Sorted index determines probability</td>
+                    <td>Prevents "super-individual" dominance</td>
+                    <td>Slower convergence</td>
+                </tr>
+                <tr>
+                    <td><strong>Elitism</strong></td>
+                    <td>Best <code>n</code> survive automatically</td>
+                    <td>Preserves best solutions</td>
+                    <td>Reduces exploration</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Recombination & Variation</h2>
+        
+        <h3>3.1 Crossover (Recombination)</h3>
+        <p>Crossover combines genetic information from two parents to create offspring. This is the primary exploration tool in GAs.</p>
+        
+        
+
+        <div class="info-item" style="background: var(--soft);">
+            <strong>One-Point Crossover Example:</strong><br>
+            Parent 1: <code>1 2 3 | 4 5</code> <br>
+            Parent 2: <code>5 4 3 | 2 1</code> <br>
+            <hr style="border: 0; border-top: 1px solid #e2e8f0;">
+            Child 1: <code>1 2 3 | 2 1</code> <br>
+            Child 2: <code>5 4 3 | 4 5</code>
+        </div>
+
+        <h3>3.2 Mutation</h3>
+        <p>Mutation involves randomly altering a gene. This maintains <strong>genetic diversity</strong> and prevents the population from getting stuck in local optima.</p>
+        
+        
+    </section>
+
+    <section class="content-card">
+        <h2>4. Classic Problems</h2>
+        <ul>
+            <li><strong>Traveling Salesman (TSP):</strong> Finding the shortest Hamiltonian path through <code>n</code> cities.</li>
+            <li><strong>Knapsack Problem:</strong> Selecting items with given weights and values to maximize value without exceeding capacity.</li>
+        </ul>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>

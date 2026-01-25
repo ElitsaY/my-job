@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab 02: Informed Search</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #0b3a8a;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula {
+            background: #f8fafc;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: "Times New Roman", serif;
+            font-size: 1.2rem;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Lab 02: Informed Search</h1>
+    <p class="muted">Recap on search evaluation, Heuristics, Greedy, A*, and Optimization techniques.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Recap & Definitions</h2>
+        <p>Informed Search strategies use <strong>problem-specific knowledge</strong> (heuristics) to find solutions more efficiently than uninformed "blind" search.</p>
+        
+        <h3>Search Dimensions</h3>
+        <ul>
+            <li><span class="badge">Completeness</span> Always finds a solution if one exists.</li>
+            <li><span class="badge">Optimality</span> Finds the least-cost solution.</li>
+            <li><span class="badge">Time Complexity</span> Number of nodes generated/expanded.</li>
+            <li><span class="badge">Space Complexity</span> Maximum nodes stored in memory.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>2. Heuristics</h2>
+        <p>A heuristic function <code>h(n)</code> estimates the cost from state <em>n</em> to the goal. It guides the search to prefer "promising" states.</p>
+        <ul>
+            <li><strong>Admissible:</strong> Never overestimates the true cost to the goal (<code>h(n) ≤ h*(n)</code>).</li>
+            <li><strong>Consistent:</strong> The estimated cost from <em>n</em> to goal is no greater than the step cost to a neighbor <em>n'</em> plus the estimated cost from <em>n'</em> to goal.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Greedy Search</h2>
+        <p>Always expands the node that appears closest to the goal (lowest <code>h(n)</code>).</p>
+        <ul>
+            <li><span class="highlight">Optimal:</span> No.</li>
+            <li><span class="highlight">Complete:</span> No (can get stuck in loops).</li>
+            <li><span class="highlight">Complexity:</span> O(b<sup>m</sup>) for both time and space.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>4. A* Search</h2>
+        <p>Combines the cost to reach the node <code>g(n)</code> and the estimated cost to the goal <code>h(n)</code>.</p>
+        <div class="formula">f(n) = g(n) + h(n)</div>
+        <ul>
+            <li><strong>Optimality:</strong> Guaranteed if the heuristic is <em>admissible</em> (for Tree Search) or <em>consistent</em> (for Graph Search).</li>
+            <li><strong>Efficiency:</strong> A* is optimally efficient—no other optimal algorithm expands fewer nodes.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>5. Optimization Algorithms</h2>
+        <p>Used when the <strong>path</strong> doesn't matter, only the final <strong>goal state</strong> (e.g., 8-Queens, NLP).</p>
+        <ul>
+            <li><strong>Beam Search:</strong> Keeps only the top <em>l</em> most promising nodes at each level.</li>
+            <li><strong>Hill Climbing:</strong> Keeps only the single best successor (Beam Search where <em>l=1</em>). Can get stuck in <em>local maxima</em>.</li>
+            <li><strong>Simulated Annealing:</strong> Escapes local maxima by allowing "bad moves" with a probability that decreases as the "temperature" cools down.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>6. Summary of Search Strategies</h2>
+        <div class="table-wrap">
+            <table class="summary-table">
+                <thead>
+                    <tr>
+                        <th>Algorithm</th>
+                        <th>Complete</th>
+                        <th>Optimal</th>
+                        <th>Time</th>
+                        <th>Space</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>Greedy</td>
+                        <td>No*</td>
+                        <td>No</td>
+                        <td>O(b<sup>m</sup>)</td>
+                        <td>O(b<sup>m</sup>)</td>
+                    </tr>
+                    <tr>
+                        <td>Beam Search</td>
+                        <td>No</td>
+                        <td>No</td>
+                        <td>O(bml)</td>
+                        <td>O(bl)</td>
+                    </tr>
+                    <tr>
+                        <td>Hill Climbing</td>
+                        <td>No</td>
+                        <td>No</td>
+                        <td>O(bm)</td>
+                        <td>O(b)</td>
+                    </tr>
+                    <tr>
+                        <td>A*</td>
+                        <td>Yes*</td>
+                        <td>Yes</td>
+                        <td>O(b<sup>d</sup>)</td>
+                        <td>O(b<sup>d</sup>)</td>
+                    </tr>
+                    <tr>
+                        <td>IDA*</td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td>O(b<sup>d</sup>)</td>
+                        <td>O(bd)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>7. Video Resource: Simulated Annealing</h2>
+        <p>The core idea of Simulated Annealing is based on a metallurgical process. It explores widely when "hot" and settles into an optimal state as it "cools".</p>
+        <p><strong>Key Takeaways from Video:</strong></p>
+        <ul>
+            <li>Hill climbing gets stuck at <strong>local maxima</strong> [00:00:52].</li>
+            <li><strong>Stochastic Hill Climbing</strong> picks random uphill moves to avoid getting stuck [00:02:35].</li>
+            <li><strong>Simulated Annealing</strong> allows "bad moves" based on probability: <code>e<sup>ΔE / T</sup></code> [00:07:53].</li>
+            <li>As <strong>Temperature (T)</strong> decreases, the algorithm becomes more selective, eventually settling on a global maximum [00:09:45].</li>
+        </ul>
+        <a href="https://www.youtube.com/watch?v=C86j1AoMRr0" target="_blank" class="badge" style="text-decoration:none; padding: 10px 20px; margin-top: 10px;">Watch Video</a>
+    </section>
+</main>
+
+<footer>
+    <p class="muted">Lab 02 - Artificial Intelligence &copy; 2026</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab 01: Basic Definitions & Uninformed Search</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .stats-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 15px;
+        }
+
+        .stats-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .stats-table tr:nth-child(even) {
+            background: linear-gradient(90deg, rgba(37,99,235,0.02), transparent);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #0b3a8a;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-right: 5px;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        .diagram-placeholder {
+            text-align: center;
+            padding: 20px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e1;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        @media (max-width: 720px) {
+            .content-card { padding: 16px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Lab 01: Basic Definitions & Uninformed Search</h1>
+    <p class="muted">Explore basic concepts of AI: State, State Space, and Uninformed Search strategies.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>Basic Concepts and Definitions</h2>
+        
+        <h3>State Space</h3>
+        <ul>
+            <li><span class="highlight">State:</span> A representation (formulation) of the task in the process of its solution.
+                <ul>
+                    <li><span class="badge">Initial State</span> Represented with <strong>S</strong></li>
+                    <li><span class="badge">Intermediate State</span> Any capital letter except S and G</li>
+                    <li><span class="badge">Goal State</span> Represented with <strong>G</strong> (G1, G2, etc.)</li>
+                </ul>
+            </li>
+            <li><span class="highlight">Successor Function:</span> (Operator) Obtaining one state from another.</li>
+            <li><span class="highlight">Path Cost:</span> Additive; e.g., sum of distances, number of actions executed, etc.</li>
+            <li><span class="highlight">State Space:</span> The totality of all possible states that can be obtained from a given initial state.</li>
+        </ul>
+        <div class="important-box">
+            "A solution is a sequence of actions leading from the initial state to a goal state."
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Representation of the State Space</h2>
+        <p>The representation of the state space is a <strong>graph</strong> or a <strong>tree</strong>, where each state is a <strong>node</strong> and the successor function is an <strong>edge</strong>.</p>
+        
+        <p>When represented as a tree, it is a <span class="highlight">Search Tree</span>:</p>
+        <ul>
+            <li>The initial state is the <strong>root</strong>.</li>
+            <li>Terminal and goal states are represented as <strong>leaves</strong>.</li>
+        </ul>
+
+        
+
+        <table class="stats-table">
+            <tr><td><span class="badge">b</span></td><td><strong>Maximum branching factor</strong> of the search tree</td></tr>
+            <tr><td><span class="badge">d</span></td><td><strong>Depth</strong> of the least-cost solution</td></tr>
+            <tr><td><span class="badge">m</span></td><td><strong>Maximum depth</strong> of the state space (may be ∞)</td></tr>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>Global Search vs. Local Search</h2>
+        <p><strong>Global Search:</strong> Look all over the state space. All states may be traversed.</p>
+        <p><strong>Local Search:</strong> Look only at the local area. Used as an <em>optimizing algorithm</em> to find solutions quickly when the path is not the priority.</p>
+        <ul>
+            <li>Maximizes a specific criterion among candidate solutions.</li>
+            <li>Applies local changes until an optimal solution is found.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>Uninformed (Blind) Search</h2>
+        <p>Uninformed strategies use only the information available in the problem definition. They have no knowledge of where the goal might be.</p>
+        <h3>Strategies:</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <span class="badge">Depth-First Search (DFS)</span>
+            <span class="badge">Breadth-First Search (BFS)</span>
+            <span class="badge">Uniform-Cost Search (UCS)</span>
+            <span class="badge">Depth-Limited Search (DLS)</span>
+            <span class="badge">Iterative Deepening Search (IDS)</span>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p class="muted">Lab 01 - Artificial Intelligence &copy; 2026</p>
+</footer>
+
+</body>
+</html>

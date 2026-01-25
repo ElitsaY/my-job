@@ -16,15 +16,25 @@
     <main>
         <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
-        <input
-            type="text"
-            id="jobSearch"
-            placeholder="Search jobs (typos OK - fuzzy search)"
-            oninput="searchJobs()"
-            style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px; border: 2px solid #ccc; border-radius: 4px;"
-        />
+        <!-- Tab Navigation -->
+        <div class="tabs-container">
+            <div class="tabs-nav">
+                <button class="tab-btn active" data-tab="jobs">Job Search</button>
+                <button class="tab-btn" data-tab="ml-prep">ML Preparation</button>
+            </div>
+        </div>
 
-        <section class="jobs-listings">
+        <!-- Tab 1: Job Search -->
+        <div id="jobs-tab" class="tab-content active">
+            <input
+                type="text"
+                id="jobSearch"
+                placeholder="Search jobs (typos OK - fuzzy search)"
+                oninput="searchJobs()"
+                style="width: 100%; padding: 10px; margin-bottom: 20px; font-size: 16px; border: 2px solid #ccc; border-radius: 4px;"
+            />
+
+            <section class="jobs-listings">
             <h2>Opportunities</h2>
             <div class="table-wrap">
                 <table class="jobs-table" aria-label="Internship listings">
@@ -47,6 +57,58 @@
             <h2>Get in Touch</h2>
             <a href="https://github.com/yourusername" target="_blank">Visit my GitHub Profile</a>
         </section>
+        </div>
+
+        <!-- Tab 2: ML Preparation -->
+        <div id="ml-prep-tab" class="tab-content">
+            <section class="ml-prep-section">
+                <h2>AI & Machine Learning Preparation</h2>
+                <p>Explore fundamental AI and search concepts to prepare for technical interviews and ML roles.</p>
+                
+                <div class="topics-table-wrap">
+                    <table class="topics-table">
+                        <thead>
+                            <tr>
+                                <th scope="col">Topic</th>
+                                <th scope="col">Description</th>
+                                <th scope="col">Resource</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td class="topic-name">Uninformed Search</td>
+                                <td>Basic definitions, state spaces, and blind search strategies (BFS, DFS, UCS, IDS)</td>
+                                <td><a href="01_uninformed_search.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Informed Search</td>
+                                <td>Heuristic functions, greedy search, A* algorithm, and optimization techniques</td>
+                                <td><a href="02_informed_search.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Constraint Satisfaction</td>
+                                <td>CSP fundamentals, backtracking, arc consistency (AC-3), and min-conflicts heuristics</td>
+                                <td><a href="03_csp.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Genetic Algorithms</td>
+                                <td>Evolutionary search, selection mechanisms, crossover, mutation, and metaheuristic optimization</td>
+                                <td><a href="04_genetic_algorithms.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="prep-info">
+                    <h3>📚 Quick Links</h3>
+                    <ul>
+                        <li><strong>Uninformed Search:</strong> Explores all strategies without problem-specific knowledge</li>
+                        <li><strong>Informed Search:</strong> Uses heuristics to guide the search more efficiently</li>
+                        <li>Both are essential for understanding pathfinding and optimization algorithms</li>
+                    </ul>
+                </div>
+            </section>
+        </div>
     </main>
 
     <footer>
@@ -122,6 +184,27 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', initializeSearch);
+
+        // Tab switching functionality
+        document.querySelectorAll('.tab-btn').forEach(button => {
+            button.addEventListener('click', function() {
+                const tabName = this.getAttribute('data-tab');
+                
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                
+                // Deactivate all buttons
+                document.querySelectorAll('.tab-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Show selected tab
+                document.getElementById(tabName + '-tab').classList.add('active');
+                this.classList.add('active');
+            });
+        });
     </script>
 
 </body>

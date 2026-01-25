@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Constraint Satisfaction Problems</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #8b5cf6; /* Violet theme for CSP */
+            --soft: rgba(139, 92, 246, 0.05);
+            --code-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; display: flex; align-items: center; gap: 10px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: var(--soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(139, 92, 246, 0.2);
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            border: 1px dashed var(--accent);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-family: 'Fira Code', monospace;
+            margin: 20px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .constraint-item {
+            border: 1px solid #e2e8f0;
+            padding: 15px;
+            border-radius: 10px;
+            background: #fff;
+        }
+
+        .video-insight {
+            background: #fdf4ff;
+            border-left: 5px solid #d946ef;
+            padding: 20px;
+            border-radius: 0 12px 12px 0;
+            margin: 25px 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th { background: #f8fafc; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Constraint Satisfaction Problems</h1>
+    <p style="color: var(--muted)">Lab Focus: Identification problems, variable constraints, and local search heuristics.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. CSP Fundamentals</h2>
+        <p>CSPs differ from standard search because they are <strong>identification problems</strong>—we only care about the final state satisfying all rules, not the path taken.</p>
+        
+        <div class="grid-3">
+            <div class="constraint-item">
+                <span class="badge">Variables (X)</span>
+                <p>N variables that need values assigned.</p>
+            </div>
+            <div class="constraint-item">
+                <span class="badge">Domain (D)</span>
+                <p>Set of allowable values for each variable.</p>
+            </div>
+            <div class="constraint-item">
+                <span class="badge">Constraints (C)</span>
+                <p>Restrictions on variable combinations.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. Constraint Types</h2>
+        <ul>
+            <li><strong>Unary:</strong> Restricts a single variable (e.g., <em>SA ≠ Green</em>).</li>
+            <li><strong>Binary:</strong> Relates two variables (e.g., <em>SA ≠ WA</em>). Represented as edges in a graph.</li>
+            <li><strong>Higher-Order:</strong> Involves 3 or more variables (e.g., Room capacity constraints in timetabling).</li>
+            <li><strong>Soft Constraints:</strong> Represent preferences rather than hard rules.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Solving Techniques</h2>
+        <h3>Backtracking (DFS Optimization)</h3>
+        <p>Backtracking improves basic DFS by fixing variable ordering and checking constraints <em>before</em> moving to the next level.</p>
+        
+        <div class="grid-3">
+            <div class="constraint-item">
+                <strong>MRV Heuristic</strong>
+                <p>Choose the "Most Constrained Variable" (one with fewest remaining valid values) first.</p>
+            </div>
+            <div class="constraint-item">
+                <strong>LCV Heuristic</strong>
+                <p>Choose the "Least Constraining Value"—the one that leaves the most options for neighbors.</p>
+            </div>
+        </div>
+
+        <div class="video-insight">
+            <h3>Arc Consistency (AC-3) Insights</h3>
+            <p>The AC-3 algorithm simplifies problems by pruning variable domains using binary constraints.</p>
+            <ul>
+                <li>Every binary constraint becomes <strong>two directed arcs</strong> [00:00:30].</li>
+                <li>An arc (X → Y) is consistent if every value in X has at least one valid partner in Y [00:01:23].</li>
+                <li>If a domain is pruned, all arcs pointing <em>to</em> that variable must be re-added to the agenda for re-checking [00:02:06].</li>
+            </ul>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Local Search: Min-Conflicts</h2>
+        <p>Min-Conflicts is a hill-climbing variant that starts with a random complete assignment and iteratively repairs it.</p>
+        <div class="formula-box">
+            h(n) = Total number of constraint violations (conflicts)
+        </div>
+        
+        <h3>The N-Queens Strategy</h3>
+        <ol>
+            <li>Initialize all queens randomly (each in a separate column).</li>
+            <li>Pick a random <strong>conflicted</strong> queen.</li>
+            <li>Move her to the row in her column that results in the <strong>minimum conflicts</strong>.</li>
+            <li>Repeat until <code>h(n) = 0</code>.</li>
+        </ol>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>
