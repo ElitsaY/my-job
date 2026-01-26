@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Adversarial Search (Games)</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #f59e0b; /* Amber/Gold theme for Strategy/Games */
+            --soft: rgba(245, 158, 11, 0.05);
+            --code-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 -20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .info-box {
+            padding: 20px;
+            border-radius: 12px;
+            background: var(--soft);
+            border: 1px solid rgba(245, 158, 11, 0.2);
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: center;
+        }
+
+        .comparison-table th { background: #f8fafc; color: var(--muted); }
+
+        .logic-card {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            vertical-align: middle;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Adversarial Search: Games</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: rgba(245, 158, 11, 0.1); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(245, 158, 11, 0.2)'" onmouseout="this.style.background='rgba(245, 158, 11, 0.1)'">← Back</a>
+    </div>
+    <p style="color: var(--muted)">Lab Focus: Deterministic zero-sum games, Minimax decision-making, and state-space pruning.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Game Taxonomy</h2>
+        <p>In AI, we categorize games based on the information available to players and the element of luck.</p>
+        
+        <div class="info-grid">
+            <div class="info-box">
+                <strong>Perfect Information</strong>
+                <p>Every player knows the entire history of actions. No hidden moves (e.g., Chess).</p>
+            </div>
+            <div class="info-box">
+                <strong>Complete Information</strong>
+                <p>Players know the rules, payoffs, and incentives of all opponents. No hidden goals.</p>
+            </div>
+        </div>
+
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Deterministic (No Luck)</th>
+                    <th>Chance (Dice/Cards)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Perfect Information</strong></td>
+                    <td>Chess, Go, Tic-Tac-Toe</td>
+                    <td>Monopoly, Backgammon</td>
+                </tr>
+                <tr>
+                    <td><strong>Incomplete Information</strong></td>
+                    <td>Battleships</td>
+                    <td>Poker, Bridge, Scrabble</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>2. The Minimax Algorithm</h2>
+        <p>Minimax aims to <strong>minimize the maximum possible loss</strong>. It assumes a "rational opponent" who plays optimally to maximize their own advantage.</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            
+        </div>
+
+        <div class="info-grid">
+            <div class="info-box" style="border-left: 5px solid #10b981;">
+                <strong>MAX Player (You)</strong>
+                <p>Attempts to choose the move that leads to the highest evaluation score.</p>
+            </div>
+            <div class="info-box" style="border-left: 5px solid #ef4444;">
+                <strong>MIN Player (Opponent)</strong>
+                <p>Attempts to choose the move that leads to the lowest evaluation score.</p>
+            </div>
+        </div>
+
+        <h3>Optimality Conditions</h3>
+        <ul>
+            <li><strong>Zero-Sum:</strong> One player's gain is the other's exact loss.</li>
+            <li><strong>Time Complexity:</strong> $O(b^m)$ where $b$ is the branching factor and $m$ is the depth.</li>
+            <li><strong>Space Complexity:</strong> $O(bm)$ (Depth-first exploration).</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Alpha-Beta Pruning</h2>
+        <p>Alpha-Beta pruning is an optimization that allows us to skip branches in the game tree that cannot possibly influence the final decision.</p>
+        
+        <div style="text-align: center; margin: 20px 0;">
+            
+        </div>
+
+        <div class="logic-card">
+            <strong>The Pruning Rule:</strong><br>
+            If β ≤ α, then the current branch is pruned (cutoff).<br><br>
+            • α (Alpha): The best value MAX can guarantee so far.<br>
+            • β (Beta): The best value MIN can guarantee so far.
+        </div>
+
+        <h3>Implementation Insight</h3>
+        <p>The effectiveness of pruning highly depends on <strong>Move Ordering</strong>. If the best moves are evaluated first, more branches can be eliminated early, potentially reducing complexity to $O(b^{m/2})$ in the best case.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Real-World Limitations</h2>
+        <p>For complex games like Chess, we cannot search to terminal states. We introduce:</p>
+        <ul>
+            <li><strong>Heuristic Evaluation:</strong> Estimating the value of a board position (e.g., counting pieces).</li>
+            <li><strong>Search Horizon:</strong> A fixed depth limit for the algorithm.</li>
+            <li><strong>Quiescence Search:</strong> Expanding volatile positions (like captures) to avoid the "horizon effect."</li>
+        </ul>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: K-Nearest Neighbors</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #8b5cf6; /* Purple theme for KNN/Instance-based */
+            --soft: rgba(139, 92, 246, 0.05);
+            --code-bg: #f8fafc;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 20px 0;
+        }
+
+        .box {
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+
+        .box:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+        .badge {
+            background: var(--soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .tag-list {
+            list-style: none;
+            padding: 0;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            background: #f1f5f9;
+            padding: 2px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+
+        .diagram-placeholder {
+            text-align: center;
+            margin: 25px 0;
+            padding: 20px;
+            background: #fafafa;
+            border-radius: 12px;
+            border: 2px dashed #e2e8f0;
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>K-Nearest Neighbors (KNN)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: rgba(139, 92, 246, 0.1); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'">← Back</a>
+    </div>
+    <p style="color: var(--muted)">Lab Focus: Comparison of learning paradigms and the intuition behind KNN.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Learning Paradigms</h2>
+        <p>Before diving into KNN, we must distinguish how different algorithms process and store information.</p>
+
+        <div class="comparison-grid">
+            <div class="box">
+                <span class="badge">Scope of Learning</span>
+                <h3>Global vs. Local</h3>
+                <p><strong>Global:</strong> Generalizes from the entire dataset (e.g., Linear Regression).</p>
+                <p><strong>Local:</strong> Focuses only on specific nearby instances (e.g., KNN).</p>
+            </div>
+
+            <div class="box">
+                <span class="badge">Method of Storage</span>
+                <h3>Instance vs. Model</h3>
+                <p><strong>Instance-Based:</strong> The data <i>is</i> the model. No abstraction is created.</p>
+                <p><strong>Model-Based:</strong> Extracts parameters (like weights) and discards raw data after training.</p>
+            </div>
+
+            <div class="box">
+                <span class="badge">Execution Timing</span>
+                <h3>Lazy vs. Eager</h3>
+                <p><strong>Lazy:</strong> No work is done until a query is made. "Store now, calculate later."</p>
+                <p><strong>Eager:</strong> Pre-calculates a model before receiving test data (e.g., SVM, Neural Networks).</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. How KNN Works</h2>
+        <p>The core philosophy: <strong>"Tell me who your neighbors are, and I'll tell you who you are."</strong></p>
+        
+        
+
+        <div class="box" style="background: var(--soft); border: none;">
+            <strong>The Process:</strong>
+            <ol>
+                <li>Store all training data.</li>
+                <li>When new data arrives, calculate the distance (e.g., Euclidean) to all stored points.</li>
+                <li>Find the <strong>K</strong> closest points.</li>
+                <li><strong>Classification:</strong> Take the majority vote.</li>
+                <li><strong>Regression:</strong> Take the average of the neighbors.</li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Pros & Cons</h2>
+        <div class="comparison-grid">
+            <div class="box" style="border-left: 5px solid #10b981;">
+                <h3 style="color: #10b981;">Advantages</h3>
+                <ul>
+                    <li><strong>Intuitive:</strong> Extremely easy to explain.</li>
+                    <li><strong>Zero Training Time:</strong> No complex mathematical fitting.</li>
+                    <li><strong>Non-Parametric:</strong> No assumptions about data shape/distribution.</li>
+                    <li><strong>Versatile:</strong> Handles both classes and numbers.</li>
+                </ul>
+            </div>
+            <div class="box" style="border-left: 5px solid #ef4444;">
+                <h3 style="color: #ef4444;">Disadvantages</h3>
+                <ul>
+                    <li><strong>Computationally Expensive:</strong> Slow testing phase (must check every point).</li>
+                    <li><strong>Memory Heavy:</strong> Requires storing the entire dataset.</li>
+                    <li><strong>Scale Sensitive:</strong> Distances are ruined if features aren't normalized.</li>
+                    <li><strong>Outlier Sensitive:</strong> Small <i>K</i> values can be misled by noise.</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Distance Metrics</h2>
+        <p>Since KNN relies on "closeness," the definition of distance is critical:</p>
+        <ul class="tag-list">
+            <li class="tag">Euclidean Distance</li>
+            <li class="tag">Manhattan Distance</li>
+            <li class="tag">Minkowski Distance</li>
+            <li class="tag">Cosine Similarity (Text)</li>
+        </ul>
+        
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Naive Bayes Classifier</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #10b981; /* Green theme for Probability/Bayes */
+            --soft: rgba(16, 185, 129, 0.05);
+            --code-bg: #f8fafc;
+            --math-blue: #2563eb;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .math-block {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--math-blue);
+            margin: 20px 0;
+            font-family: 'Times New Roman', serif;
+            font-size: 1.1rem;
+            overflow-x: auto;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-box {
+            padding: 20px;
+            border-radius: 12px;
+            background: var(--soft);
+            border: 1px solid rgba(16, 185, 129, 0.1);
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        .comparison-table th, .comparison-table td {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        .comparison-table th { background: #f8fafc; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Naive Bayes Classifier</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: rgba(16, 185, 129, 0.1); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(16, 185, 129, 0.2)'" onmouseout="this.style.background='rgba(16, 185, 129, 0.1)'">← Back</a>
+    </div>
+    <p style="color: var(--muted)">Lab Focus: Probabilistic classification, Conditional Independence, and Laplace Smoothing.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Bayesian Foundation</h2>
+        <p>Naive Bayes is a <strong>Supervised Learning</strong> algorithm that uses probability theory to predict the category of an input. Unlike KNN, which uses spatial distance, Naive Bayes uses <strong>Bayes' Theorem</strong>.</p>
+        
+        
+
+        <div class="math-block">
+            $$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$$
+            <p style="font-size: 0.9rem; margin-top: 10px; color: var(--muted);">
+                • <strong>P(A|B):</strong> Posterior (What we want to know)<br>
+                • <strong>P(B|A):</strong> Likelihood (Evidence from data)<br>
+                • <strong>P(A):</strong> Prior (Known probability of the class)
+            </p>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. Why is it "Naive"?</h2>
+        <p>The algorithm makes the <strong>Conditional Independence Assumption</strong>: it assumes that every feature is completely independent of the others given the class label.</p>
+        
+        <div class="info-box">
+            <strong>Example (Spam Filter):</strong> 
+            <p>If an email contains the words <i>"Free"</i> and <i>"Money"</i>, Naive Bayes assumes the presence of "Free" tells us nothing about the likelihood of seeing "Money". In reality, these are often correlated, but assuming independence simplifies the math from exponential complexity to linear.</p>
+        </div>
+
+        <h3>The Classification Decision</h3>
+        <p>We choose the class that maximizes the product of the prior and all feature likelihoods:</p>
+        <div class="math-block" style="text-align: center;">
+            $$\hat{C} = \arg\max_{C_i} P(C_i) \cdot \prod_{j=1}^{n} P(x_j | C_i)$$
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>3. The Zero-Probability Problem</h2>
+        <p>If a specific word or feature never appeared in the training data for a class, its probability is <strong>0</strong>. Since we multiply all probabilities together, one single zero destroys the entire calculation.</p>
+
+        
+
+        <h3>The Solution: Laplace Smoothing</h3>
+        <p>We add a small constant $\alpha$ (usually 1) to the numerator and adjust the denominator to ensure no probability is ever exactly zero.</p>
+        <div class="math-block">
+            $$P(x_j | C_i) = \frac{\text{Count}(x_j, C_i) + \alpha}{\text{Count}(C_i) + \alpha \cdot V}$$
+            <p style="font-size: 0.8rem; color: var(--muted)">V = total vocabulary size / number of possible feature values.</p>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Practical Comparison</h2>
+        <table class="comparison-table">
+            <thead>
+                <tr>
+                    <th>Advantages ✅</th>
+                    <th>Disadvantages ❌</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Extremely fast training and prediction.</td>
+                    <td>Strong assumption of feature independence.</td>
+                </tr>
+                <tr>
+                    <td>Works well with high-dimensional data (Text).</td>
+                    <td>Actual probability values are often inaccurate.</td>
+                </tr>
+                <tr>
+                    <td>Requires very little training data.</td>
+                    <td>Sensitive to irrelevant features.</td>
+                </tr>
+                <tr>
+                    <td>Handles missing values naturally.</td>
+                    <td>Cannot learn interactions between features.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>Summary Table: Naive Bayes vs. KNN</h2>
+        <div class="grid-2">
+            <div class="info-box">
+                <span class="badge">Naive Bayes</span>
+                <ul>
+                    <li>Probabilistic approach</li>
+                    <li>Global/Eager learning</li>
+                    <li>Fast at testing time</li>
+                    <li>Best for Text/NLP</li>
+                </ul>
+            </div>
+            <div class="info-box">
+                <span class="badge">KNN</span>
+                <ul>
+                    <li>Distance-based approach</li>
+                    <li>Local/Lazy learning</li>
+                    <li>Slow at testing time</li>
+                    <li>Best for spatial data</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>

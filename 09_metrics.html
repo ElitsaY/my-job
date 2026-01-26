@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Evaluation Metrics</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #0ea5e9; /* Sky blue theme for Analysis/Metrics */
+            --soft: rgba(14, 165, 233, 0.05);
+            --code-bg: #f8fafc;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.25rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 20px;
+            border-radius: 12px;
+            border-left: 4px solid var(--accent);
+            margin: 20px 0;
+            font-family: 'Fira Code', monospace;
+        }
+
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .stat-card {
+            padding: 20px;
+            border-radius: 12px;
+            background: var(--soft);
+            border: 1px solid rgba(14, 165, 233, 0.1);
+        }
+
+        .badge {
+            background: var(--accent);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+
+        th, td {
+            padding: 12px;
+            border: 1px solid #e2e8f0;
+            text-align: left;
+        }
+
+        th { background: #f8fafc; color: var(--muted); }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Model Evaluation & Metrics</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: rgba(14, 165, 233, 0.1); border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='rgba(14, 165, 233, 0.2)'" onmouseout="this.style.background='rgba(14, 165, 233, 0.1)'">← Back</a>
+    </div>
+    <p style="color: var(--muted)">Lab Focus: Cross-validation, Confusion Matrices, and the Bias-Variance Tradeoff.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. Cross-Validation (K-Fold)</h2>
+        <p>Cross-validation estimates how a model will perform on <strong>unseen data</strong>. It ensures the model hasn't just memorized the training set (Overfitting).</p>
+        
+        
+
+        <div class="stat-card">
+            <strong>How it works:</strong>
+            <ol>
+                <li>Split data into <b>K</b> equal segments (folds).</li>
+                <li>Train on <b>K-1</b> folds; test on the remaining <b>1</b>.</li>
+                <li>Repeat <b>K</b> times so every fold acts as the test set once.</li>
+                <li>Average the results for a stable performance score.</li>
+            </ol>
+        </div>
+
+        <div class="formula-box" style="text-align: center;">
+            Performance = $\frac{\sum \text{Score}_i}{k}$
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. The Confusion Matrix</h2>
+        <p>A table used to describe the performance of a classification model. It breaks down correct predictions vs. specific types of errors.</p>
+        
+        
+
+        <div class="metric-grid">
+            <div class="stat-card" style="border-top: 4px solid var(--success);">
+                <span class="badge">TP / TN</span>
+                <p><strong>True Positive/Negative:</strong> The model predicted correctly. Correct hits and correct rejections.</p>
+            </div>
+            <div class="stat-card" style="border-top: 4px solid var(--error);">
+                <span class="badge">FP (Type I)</span>
+                <p><strong>False Positive:</strong> A "False Alarm." The model predicted positive, but the truth was negative.</p>
+            </div>
+            <div class="stat-card" style="border-top: 4px solid var(--error);">
+                <span class="badge">FN (Type II)</span>
+                <p><strong>False Negative:</strong> A "Miss." The model predicted negative, but the truth was positive.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Precision & Recall (Sensitivity)</h2>
+        <p>Depending on the problem, one metric may be more important than the other. In medicine, missing a sick person (Low Recall) is often worse than a false alarm.</p>
+
+        
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Metric</th>
+                    <th>Formula</th>
+                    <th>Logic</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td><strong>Sensitivity (Recall)</strong></td>
+                    <td>$\frac{TP}{TP + FN}$</td>
+                    <td>Ability to find all <b>positive</b> cases.</td>
+                </tr>
+                <tr>
+                    <td><strong>Specificity</strong></td>
+                    <td>$\frac{TN}{TN + FP}$</td>
+                    <td>Ability to correctly identify <b>negative</b> cases.</td>
+                </tr>
+                <tr>
+                    <td><strong>Precision</strong></td>
+                    <td>$\frac{TP}{TP + FP}$</td>
+                    <td>Accuracy of the positive predictions.</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Bias vs. Variance Tradeoff</h2>
+        <p>The "Sweet Spot" of Machine Learning is finding a model with enough complexity to learn (Low Bias) but enough simplicity to generalize (Low Variance).</p>
+
+        <div class="metric-grid">
+            <div class="stat-card">
+                <h3>High Bias</h3>
+                <p style="color: var(--error)"><strong>Underfitting</strong></p>
+                <p>The model is too simple (e.g., a straight line for curved data). It misses the underlying pattern.</p>
+            </div>
+            <div class="stat-card">
+                <h3>High Variance</h3>
+                <p style="color: var(--error)"><strong>Overfitting</strong></p>
+                <p>The model is too complex (squiggly). It follows the "noise" in the data too closely.</p>
+            </div>
+        </div>
+        
+        
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+</body>
+</html>
