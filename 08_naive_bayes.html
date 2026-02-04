@@ -88,6 +88,41 @@
         }
 
         .comparison-table th { background: #f8fafc; color: var(--muted); }
+    
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+         @media (max-width: 720px) {
+            .right-nav { display: none; }
+        }
     </style>
 </head>
 <body>
@@ -207,6 +242,21 @@
         Artificial Intelligence Lab Documentation &bull; 2026
     </p>
 </footer>
+
+
+<aside class="right-nav" aria-label="Lab navigation">
+    <h3>Lab Pages</h3>
+    <a href="index.html">Home / Index</a>
+    <a href="01_uninformed_search.html">01 - Uninformed Search</a>
+    <a href="02_informed_search.html">02 - Informed Search</a>
+    <a href="03_csp.html">03 - Constraint Satisfaction (CSP)</a>
+    <a href="04_genetic_algorithms.html">04 - Genetic Algorithms</a>
+    <a href="05_games.html">05 - Adversarial Search (Games)</a>
+    <a href="06_ml_intro.html">06 - ML Introduction</a>
+    <a href="07_knn.html">07 - KNN</a>
+    <a href="08_naive_bayes.html">08 - Naive Bayes</a>
+    <a href="09_metrics.html">09 - Evaluation Metrics</a>
+</aside>
 
 </body>
 </html>

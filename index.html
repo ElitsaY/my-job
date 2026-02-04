@@ -123,15 +123,6 @@
                         </tbody>
                     </table>
                 </div>
-
-                <div class="prep-info">
-                    <h3>📚 Quick Links</h3>
-                    <ul>
-                        <li><strong>Uninformed Search:</strong> Explores all strategies without problem-specific knowledge</li>
-                        <li><strong>Informed Search:</strong> Uses heuristics to guide the search more efficiently</li>
-                        <li>Both are essential for understanding pathfinding and optimization algorithms</li>
-                    </ul>
-                </div>
             </section>
         </div>
     </main>
@@ -207,27 +198,51 @@
             });
         }
 
+        function activateTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Deactivate all buttons
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+
+            // Show selected tab + highlight its button
+            const targetTab = document.getElementById(tabName + '-tab');
+            const targetButton = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+            if (targetTab && targetButton) {
+                targetTab.classList.add('active');
+                targetButton.classList.add('active');
+            }
+        }
+
+        function activateTabFromHash() {
+            if (window.location.hash === '#ml-prep' || window.location.hash === '#ml-prep-tab') {
+                activateTab('ml-prep');
+            } else {
+                activateTab('jobs');
+            }
+        }
+
         // Initialize on page load
-        document.addEventListener('DOMContentLoaded', initializeSearch);
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeSearch();
+            activateTabFromHash();
+        });
+
+        // Keep tabs in sync with URL hash
+        window.addEventListener('hashchange', activateTabFromHash);
+        // Handle browser back/forward cache restores
+        window.addEventListener('pageshow', activateTabFromHash);
 
         // Tab switching functionality
         document.querySelectorAll('.tab-btn').forEach(button => {
             button.addEventListener('click', function() {
                 const tabName = this.getAttribute('data-tab');
-                
-                // Hide all tabs
-                document.querySelectorAll('.tab-content').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                
-                // Deactivate all buttons
-                document.querySelectorAll('.tab-btn').forEach(btn => {
-                    btn.classList.remove('active');
-                });
-                
-                // Show selected tab
-                document.getElementById(tabName + '-tab').classList.add('active');
-                this.classList.add('active');
+                window.location.hash = tabName === 'ml-prep' ? 'ml-prep' : '';
+                activateTab(tabName);
             });
         });
     </script>
