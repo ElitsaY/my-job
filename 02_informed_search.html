@@ -104,13 +104,11 @@
             font-size: 0.9em;
         }
 
-        .formula {
-            background: #f8fafc;
+        .formula-box {
+            background: var(--code-bg);
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            font-family: "Times New Roman", serif;
-            font-size: 1.2rem;
+            font-family: 'Courier New', Courier, monospace;
             margin: 15px 0;
         }
 
@@ -181,6 +179,7 @@
     <section class="content-card">
         <h2>2. Heuristics</h2>
         <p>A heuristic function <code>h(n)</code> estimates the cost from state <em>n</em> to the goal. It guides the search to prefer "promising" states.</p>
+        <div class="formula-box">Admissible Heuristic: h(n) &le; h*(n)</div>
         <ul>
             <li><strong>Admissible:</strong> Never overestimates the true cost to the goal (<code>h(n) ≤ h*(n)</code>).</li>
             <li><strong>Consistent:</strong> The estimated cost from <em>n</em> to goal is no greater than the step cost to a neighbor <em>n'</em> plus the estimated cost from <em>n'</em> to goal.</li>
@@ -200,7 +199,7 @@
     <section class="content-card">
         <h2>4. A* Search</h2>
         <p>Combines the cost to reach the node <code>g(n)</code> and the estimated cost to the goal <code>h(n)</code>.</p>
-        <div class="formula">f(n) = g(n) + h(n)</div>
+        <div class="formula-box" style="text-align: center;">f(n) = g(n) + h(n)</div>
         <ul>
             <li><strong>Optimality:</strong> Guaranteed if the heuristic is <em>admissible</em> (for Tree Search) or <em>consistent</em> (for Graph Search).</li>
             <li><strong>Efficiency:</strong> A* is optimally efficient—no other optimal algorithm expands fewer nodes.</li>
@@ -274,6 +273,7 @@
     <section class="content-card">
         <h2>7. Video Resource: Simulated Annealing</h2>
         <p>The core idea of Simulated Annealing is based on a metallurgical process. It explores widely when "hot" and settles into an optimal state as it "cools".</p>
+        <div class="formula-box" style="text-align: center;">Acceptance Probability = e^(ΔE / T)</div>
         <p><strong>Key Takeaways from Video:</strong></p>
         <ul>
             <li>Hill climbing gets stuck at <strong>local maxima</strong> [00:00:52].</li>

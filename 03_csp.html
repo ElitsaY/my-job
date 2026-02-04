@@ -52,12 +52,10 @@
 
         .formula-box {
             background: var(--code-bg);
-            border: 1px dashed var(--accent);
             padding: 15px;
             border-radius: 8px;
-            text-align: center;
-            font-family: 'Fira Code', monospace;
-            margin: 20px 0;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
         }
 
         .grid-3 {
@@ -203,7 +201,7 @@
     <section class="content-card">
         <h2>4. Local Search: Min-Conflicts</h2>
         <p>Min-Conflicts is a hill-climbing variant that starts with a random complete assignment and iteratively repairs it.</p>
-        <div class="formula-box">
+        <div class="formula-box" style="text-align: center;">
             h(n) = Total number of constraint violations (conflicts)
         </div>
         

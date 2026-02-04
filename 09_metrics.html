@@ -44,11 +44,10 @@
 
         .formula-box {
             background: var(--code-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--accent);
-            margin: 20px 0;
-            font-family: 'Fira Code', monospace;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
         }
 
         .metric-grid {
@@ -152,7 +151,7 @@
         </div>
 
         <div class="formula-box" style="text-align: center;">
-            Performance = $\frac{\sum \text{Score}_i}{k}$
+            Performance = (Σ Scorei) / k
         </div>
     </section>
 
@@ -181,6 +180,11 @@
     <section class="content-card">
         <h2>3. Precision & Recall (Sensitivity)</h2>
         <p>Depending on the problem, one metric may be more important than the other. In medicine, missing a sick person (Low Recall) is often worse than a false alarm.</p>
+        <div class="formula-box">
+            Recall (Sensitivity) = TP / (TP + FN)<br>
+            Specificity = TN / (TN + FP)<br>
+            Precision = TP / (TP + FP)
+        </div>
 
         
 
@@ -195,17 +199,17 @@
             <tbody>
                 <tr>
                     <td><strong>Sensitivity (Recall)</strong></td>
-                    <td>$\frac{TP}{TP + FN}$</td>
+                    <td><code>TP / (TP + FN)</code></td>
                     <td>Ability to find all <b>positive</b> cases.</td>
                 </tr>
                 <tr>
                     <td><strong>Specificity</strong></td>
-                    <td>$\frac{TN}{TN + FP}$</td>
+                    <td><code>TN / (TN + FP)</code></td>
                     <td>Ability to correctly identify <b>negative</b> cases.</td>
                 </tr>
                 <tr>
                     <td><strong>Precision</strong></td>
-                    <td>$\frac{TP}{TP + FP}$</td>
+                    <td><code>TP / (TP + FP)</code></td>
                     <td>Accuracy of the positive predictions.</td>
                 </tr>
             </tbody>

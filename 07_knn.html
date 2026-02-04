@@ -91,6 +91,14 @@
             border-radius: 12px;
             border: 2px dashed #e2e8f0;
         }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
     
 
         /* Right-side navigation */
@@ -212,6 +220,11 @@
     <section class="content-card">
         <h2>4. Distance Metrics</h2>
         <p>Since KNN relies on "closeness," the definition of distance is critical:</p>
+        <div class="formula-box">
+            Euclidean: d = √Σ(xi - yi)^2<br>
+            Manhattan: d = Σ|xi - yi|<br>
+            Minkowski: d = (Σ|xi - yi|^p)^(1/p)
+        </div>
         <ul class="tag-list">
             <li class="tag">Euclidean Distance</li>
             <li class="tag">Manhattan Distance</li>

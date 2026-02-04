@@ -92,6 +92,14 @@
             font-size: 0.9em;
             color: #2563eb;
         }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
     
 
         /* Right-side navigation */
@@ -156,6 +164,7 @@
         </div>
 
         <h3>1.1 Paradigms</h3>
+        <div class="formula-box" style="text-align: center;">General Model Mapping: y = f(x)</div>
         <ul>
             <li><span class="concept-tag">Supervised Learning:</span> Learning from labeled data (Input + Correct Answer).</li>
             <li><span class="concept-tag">Unsupervised Learning:</span> Discovering hidden structures in unlabeled data.</li>
@@ -241,6 +250,7 @@
 
     <section class="content-card">
         <h2>5. Optimization Terms</h2>
+        <div class="formula-box" style="text-align: center;">Training Objective: min Loss(y, y^)</div>
         <div class="grid-2">
             <p>• <strong>Epoch:</strong> One full pass through the dataset.</p>
             <p>• <strong>Learning Rate:</strong> The step size taken towards the minimum loss.</p>

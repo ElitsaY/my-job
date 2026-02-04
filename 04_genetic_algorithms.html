@@ -100,6 +100,14 @@
             font-size: 0.9em;
             color: #ef4444;
         }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
     
 
         /* Right-side navigation */
@@ -183,6 +191,9 @@
 
         <h3>2.1 Selection Mechanisms</h3>
         <p>Selection determines which individuals get to pass their genetic material to the next generation based on <strong>Selection Pressure</strong>.</p>
+        <div class="formula-box" style="text-align: center;">
+            Roulette Wheel Probability: p(i) = f(i) / Σ f(j)
+        </div>
         
         
 
@@ -243,6 +254,9 @@
 
         <h3>3.2 Mutation</h3>
         <p>Mutation involves randomly altering a gene. This maintains <strong>genetic diversity</strong> and prevents the population from getting stuck in local optima.</p>
+        <div class="formula-box" style="text-align: center;">
+            Mutation Rate: p(mutation) = mutated genes / total genes
+        </div>
         
         
     </section>

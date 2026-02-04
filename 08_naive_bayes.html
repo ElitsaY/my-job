@@ -12,7 +12,6 @@
             --accent: #10b981; /* Green theme for Probability/Bayes */
             --soft: rgba(16, 185, 129, 0.05);
             --code-bg: #f8fafc;
-            --math-blue: #2563eb;
         }
 
         body {
@@ -41,15 +40,12 @@
             margin-bottom: 30px;
         }
 
-        .math-block {
+        .formula-box {
             background: var(--code-bg);
-            padding: 20px;
-            border-radius: 12px;
-            border-left: 4px solid var(--math-blue);
-            margin: 20px 0;
-            font-family: 'Times New Roman', serif;
-            font-size: 1.1rem;
-            overflow-x: auto;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
         }
 
         .grid-2 {
@@ -142,8 +138,8 @@
         
         
 
-        <div class="math-block">
-            $$P(A|B) = \frac{P(B|A) \cdot P(A)}{P(B)}$$
+        <div class="formula-box">
+            P(A|B) = (P(B|A) * P(A)) / P(B)
             <p style="font-size: 0.9rem; margin-top: 10px; color: var(--muted);">
                 • <strong>P(A|B):</strong> Posterior (What we want to know)<br>
                 • <strong>P(B|A):</strong> Likelihood (Evidence from data)<br>
@@ -163,8 +159,8 @@
 
         <h3>The Classification Decision</h3>
         <p>We choose the class that maximizes the product of the prior and all feature likelihoods:</p>
-        <div class="math-block" style="text-align: center;">
-            $$\hat{C} = \arg\max_{C_i} P(C_i) \cdot \prod_{j=1}^{n} P(x_j | C_i)$$
+        <div class="formula-box" style="text-align: center;">
+            Ĉ = argmax[ P(Ci) * Π P(xj | Ci) ]
         </div>
     </section>
 
@@ -175,9 +171,9 @@
         
 
         <h3>The Solution: Laplace Smoothing</h3>
-        <p>We add a small constant $\alpha$ (usually 1) to the numerator and adjust the denominator to ensure no probability is ever exactly zero.</p>
-        <div class="math-block">
-            $$P(x_j | C_i) = \frac{\text{Count}(x_j, C_i) + \alpha}{\text{Count}(C_i) + \alpha \cdot V}$$
+        <p>We add a small constant α (usually 1) to the numerator and adjust the denominator to ensure no probability is ever exactly zero.</p>
+        <div class="formula-box">
+            P(xj | Ci) = (Count(xj, Ci) + α) / (Count(Ci) + α * V)
             <p style="font-size: 0.8rem; color: var(--muted)">V = total vocabulary size / number of possible feature values.</p>
         </div>
     </section>

@@ -86,6 +86,14 @@
             font-size: 0.75rem;
             vertical-align: middle;
         }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
     
 
         /* Right-side navigation */
@@ -192,6 +200,9 @@
         </div>
 
         <h3>Optimality Conditions</h3>
+        <div class="formula-box" style="text-align: center;">
+            Minimax Recurrence: V(s) = max(min(V(successors)))
+        </div>
         <ul>
             <li><strong>Zero-Sum:</strong> One player's gain is the other's exact loss.</li>
             <li><strong>Time Complexity:</strong> $O(b^m)$ where $b$ is the branching factor and $m$ is the depth.</li>
@@ -212,6 +223,9 @@
             If β ≤ α, then the current branch is pruned (cutoff).<br><br>
             • α (Alpha): The best value MAX can guarantee so far.<br>
             • β (Beta): The best value MIN can guarantee so far.
+        </div>
+        <div class="formula-box" style="text-align: center;">
+            Prune when: β &le; α
         </div>
 
         <h3>Implementation Insight</h3>
