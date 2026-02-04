@@ -92,17 +92,86 @@
             font-family: monospace;
         }
 
-        .diagram-placeholder {
-            text-align: center;
-            padding: 20px;
-            background: #f8fafc;
-            border: 2px dashed #cbd5e1;
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
             border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        /* GitHub-Style Code Block */
+        .code-container {
+            position: relative;
+            background-color: var(--gh-bg);
+            border: 1px solid var(--gh-border);
+            border-radius: 6px;
             margin: 20px 0;
         }
 
+        .code-header {
+            background: #eff1f3;
+            padding: 8px 16px;
+            border-bottom: 1px solid var(--gh-border);
+            font-family: monospace;
+            font-size: 12px;
+            color: #444;
+            border-radius: 6px 6px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-auto: auto;
+            font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #24292f;
+        }
+
+        /* Basic Syntax Highlighting Classes */
+        .k { color: var(--gh-keyword); font-weight: bold; } /* keyword */
+        .nf { color: var(--gh-func); } /* name function */
+        .s { color: var(--gh-string); } /* string */
+        .c { color: var(--gh-comment); font-style: italic; } /* comment */
+        .v { color: var(--gh-variable); } /* variable/constant */
+
         @media (max-width: 720px) {
             .content-card { padding: 16px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
         }
     </style>
 </head>
@@ -119,19 +188,18 @@
 <main>
     <section class="content-card">
         <h2>Basic Concepts and Definitions</h2>
-        
         <h3>State Space</h3>
         <ul>
-            <li><span class="highlight">State:</span> A representation (formulation) of the task in the process of its solution.
+            <li><span class="highlight">State:</span> A representation of the task in the process of its solution.
                 <ul>
                     <li><span class="badge">Initial State</span> Represented with <strong>S</strong></li>
                     <li><span class="badge">Intermediate State</span> Any capital letter except S and G</li>
-                    <li><span class="badge">Goal State</span> Represented with <strong>G</strong> (G1, G2, etc.)</li>
+                    <li><span class="badge">Goal State</span> Represented with <strong>G</strong> (G<sub>1</sub>, G<sub>2</sub>, etc.)</li>
                 </ul>
             </li>
-            <li><span class="highlight">Successor Function:</span> (Operator) Obtaining one state from another.</li>
-            <li><span class="highlight">Path Cost:</span> Additive; e.g., sum of distances, number of actions executed, etc.</li>
-            <li><span class="highlight">State Space:</span> The totality of all possible states that can be obtained from a given initial state.</li>
+            <li><span class="highlight">Successor Function:</span> Obtaining one state from another.</li>
+            <li><span class="highlight">Path Cost:</span> Additive sum of distances or actions.</li>
+            <li><span class="highlight">State Space:</span> Totality of all possible states obtained from the initial state.</li>
         </ul>
         <div class="important-box">
             "A solution is a sequence of actions leading from the initial state to a goal state."
@@ -140,50 +208,191 @@
 
     <section class="content-card">
         <h2>Representation of the State Space</h2>
-        <p>The representation of the state space is a <strong>graph</strong> or a <strong>tree</strong>, where each state is a <strong>node</strong> and the successor function is an <strong>edge</strong>.</p>
-        
-        <p>When represented as a tree, it is a <span class="highlight">Search Tree</span>:</p>
-        <ul>
-            <li>The initial state is the <strong>root</strong>.</li>
-            <li>Terminal and goal states are represented as <strong>leaves</strong>.</li>
-        </ul>
-
-        
-
+        <p>The state space is represented as a <strong>graph</strong> or a <strong>tree</strong>, where each state is a <strong>node</strong> and the successor function is an <strong>edge</strong>.</p>
         <table class="stats-table">
             <tr><td><span class="badge">b</span></td><td><strong>Maximum branching factor</strong> of the search tree</td></tr>
             <tr><td><span class="badge">d</span></td><td><strong>Depth</strong> of the least-cost solution</td></tr>
-            <tr><td><span class="badge">m</span></td><td><strong>Maximum depth</strong> of the state space (may be ∞)</td></tr>
+            <tr><td><span class="badge">m</span></td><td><strong>Maximum depth</strong> of the state space (may be &infin;)</td></tr>
         </table>
     </section>
 
     <section class="content-card">
-        <h2>Global Search vs. Local Search</h2>
-        <p><strong>Global Search:</strong> Look all over the state space. All states may be traversed.</p>
-        <p><strong>Local Search:</strong> Look only at the local area. Used as an <em>optimizing algorithm</em> to find solutions quickly when the path is not the priority.</p>
+        <h2>DFS - Depth First Search</h2>
+        <p><b>Go Deep First:</b> DFS explores as far as possible down one branch before backtracking. It's like exploring a maze by always choosing the first available path until hitting a dead end.</p>
+        
+        
+
         <ul>
-            <li>Maximizes a specific criterion among candidate solutions.</li>
-            <li>Applies local changes until an optimal solution is found.</li>
+            <li><span class="highlight">Data Structure:</span> <code>Stack</code> (LIFO). Pops the most recent node to backtrack.</li>
+            <li><span class="badge">Complete: No</span> Fails in infinite-depth spaces.</li>
+            <li><span class="badge">Optimal: No</span> Might find a deep solution when a shallow one exists.</li>
         </ul>
+
+        <div class="trap-box">
+            <strong>Infinite Space Trap Example:</strong><br>
+            Target 10 from Start 5 using "Multiply by 2" or "Subtract 1".<br>
+            DFS might go: 5 &rarr; 10 &rarr; 20 &rarr; 40 &rarr; ... &infin; (missing the target at the first step).
+        </div>
+
+        <div class="formula-box">
+            <strong>Time Complexity:</strong> <i>O(b<sup>m</sup>)</i> <br>
+            Calculated as: b<sup>0</sup> + b<sup>1</sup> + ... + b<sup>m</sup><br>
+            <strong>Space Complexity:</strong> <i>O(bm)</i>
+        </div>
     </section>
 
     <section class="content-card">
-        <h2>Uninformed (Blind) Search</h2>
-        <p>Uninformed strategies use only the information available in the problem definition. They have no knowledge of where the goal might be.</p>
-        <h3>Strategies:</h3>
-        <div style="display: flex; flex-wrap: wrap; gap: 10px;">
-            <span class="badge">Depth-First Search (DFS)</span>
-            <span class="badge">Breadth-First Search (BFS)</span>
-            <span class="badge">Uniform-Cost Search (UCS)</span>
-            <span class="badge">Depth-Limited Search (DLS)</span>
-            <span class="badge">Iterative Deepening Search (IDS)</span>
+        <h2>BFS - Breadth First Search</h2>
+        <p>Explores all nodes at the current depth level before moving to the next level.</p>
+        
+        
+
+        <ul>
+            <li><span class="highlight">Data Structure:</span> <code>Queue</code> (FIFO).</li>
+            <li><span class="badge">Complete: Yes</span> If branching factor <i>b</i> is finite.</li>
+            <li><span class="badge">Optimal: Yes</span> Only if all step costs are equal.</li>
+        </ul>
+
+        <div class="formula-box">
+            <strong>Time Complexity:</strong> <i>O(b<sup>d+1</sup>)</i> <br>
+            Explores all nodes up to <i>d</i>, and generates children for level <i>d</i>.<br>
+            <strong>Space Complexity:</strong> <i>O(b<sup>d+1</sup>)</i>
         </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Uniform-Cost Search (UCS)</h2>
+        <p>Selects the node on the frontier with the <b>lowest path cost</b> from the start node. This is essentially Dijkstra's algorithm applied to search.</p>
+        
+        
+
+        <ul>
+            <li><span class="highlight">Frontier:</span> <code>Priority Queue</code> (Heap-based).</li>
+            <li><span class="badge">Complete: Yes</span> If step costs &epsilon; > 0.</li>
+            <li><span class="badge">Optimal: Yes</span> Guaranteed to find the lowest-cost path.</li>
+        </ul>
+
+        <div class="formula-box">
+            Let <i>C*</i> be the optimal cost and <i>&epsilon;</i> be the minimum step cost.<br>
+            <strong>Time Complexity:</strong> <i>O(b<sup>&lceil; C*/&epsilon; &rceil;</sup>)</i><br>
+            <strong>Space Complexity:</strong> <i>O(b<sup>&lceil; C*/&epsilon; &rceil;</sup>)</i>
+        </div>
+
+    </section>
+
+    <section class="content-card">
+        <h2>Depth-Limited Search (DLS)</h2>
+        <p>A variation of DFS that addresses infinite paths by supplying a limit <i>l</i>. Nodes at depth <i>l</i> have no successors.</p>
+        
+        
+
+        <table class="stats-table">
+            <tr><td><span class="badge">Complete</span></td><td><strong>Yes</strong>, if <i>l &ge; d</i></td></tr>
+            <tr><td><span class="badge">Optimal</span></td><td><strong>No</strong></td></tr>
+            <tr><td><span class="badge">Time Complexity</span></td><td><i>O(b<sup>l</sup>)</i></td></tr>
+            <tr><td><span class="badge">Space Complexity</span></td><td><i>O(bl)</i></td></tr>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>Iterative Deepening Search (IDS)</h2>
+        <p>IDS repeatedly applies DLS, increasing the limit <i>l</i> until a goal is found. It explores level-by-level like BFS but uses DFS memory efficiency.</p>
+        
+        
+
+        <div class="formula-box">
+            <strong>Time Complexity:</strong> <i>O(b<sup>d</sup>)</i> <br>
+            (d+1)b<sup>0</sup> + db<sup>1</sup> + (d-1)b<sup>2</sup> + ... + 1b<sup>d</sup>
+        </div>
+
+        <div class="stat-card" style="padding: 15px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px;">
+            <strong>Example: b = 10, d = 5</strong><br>
+            &bull; N<sub>IDS</sub> = 123,456<br>
+            &bull; N<sub>BFS</sub> = 1,111,101<br>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>Summary of Uninformed Algorithms</h2>
+        <div style="overflow-x: auto;">
+            <table class="stats-table">
+                <thead>
+                    <tr style="background: #f8fafc;">
+                        <th>Algorithm</th>
+                        <th>Complete</th>
+                        <th>Optimal</th>
+                        <th>Time</th>
+                        <th>Space</th>
+                        <th>Structure</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>DFS</strong></td>
+                        <td>No</td>
+                        <td>No</td>
+                        <td><i>O(b<sup>m</sup>)</i></td>
+                        <td><i>O(bm)</i></td>
+                        <td><code>Stack</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>BFS</strong></td>
+                        <td>Yes*</td>
+                        <td>Yes*</td>
+                        <td><i>O(b<sup>d+1</sup>)</i></td>
+                        <td><i>O(b<sup>d+1</sup>)</i></td>
+                        <td><code>Queue</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>UCS</strong></td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td><i>O(b<sup>&lceil; C*/&epsilon; &rceil;</sup>)</i></td>
+                        <td><i>O(b<sup>&lceil; C*/&epsilon; &rceil;</sup>)</i></td>
+                        <td><code>Priority Queue</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>DLS</strong></td>
+                        <td>Yes*</td>
+                        <td>No</td>
+                        <td><i>O(b<sup>l</sup>)</i></td>
+                        <td><i>O(bl)</i></td>
+                        <td><code>Stack</code></td>
+                    </tr>
+                    <tr>
+                        <td><strong>IDS</strong></td>
+                        <td>Yes</td>
+                        <td>Yes</td>
+                        <td><i>O(b<sup>d</sup>)</i></td>
+                        <td><i>O(bd)</i></td>
+                        <td><code>Stack</code></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <p style="font-size: 0.8rem; color: var(--muted); margin-top: 10px;">
+            *Subject to conditions (finite <i>b</i>, unit step costs, or <i>l &ge; d</i>).
+        </p>
     </section>
 </main>
 
 <footer>
-    <p class="muted">Lab 01 - Artificial Intelligence &copy; 2026</p>
+    <p class="muted" style="text-align: center;">Lab 01 - Artificial Intelligence &copy; 2026</p>
 </footer>
+
+<aside class="right-nav" aria-label="Lab navigation">
+    <h3>Lab Pages</h3>
+    <a href="index.html">Home / Index</a>
+    <a href="01_uninformed_search.html">01 — Uninformed Search</a>
+    <a href="02_informed_search.html">02 — Informed Search</a>
+    <a href="03_csp.html">03 — Constraint Satisfaction (CSP)</a>
+    <a href="04_genetic_algorithms.html">04 — Genetic Algorithms</a>
+    <a href="05_games.html">05 — Adversarial Search (Games)</a>
+    <a href="06_ml_intro.html">06 — ML Introduction</a>
+    <a href="07_knn.html">07 — KNN</a>
+    <a href="08_naive_bayes.html">08 — Naive Bayes</a>
+    <a href="09_metrics.html">09 — Evaluation Metrics</a>
+</aside>
 
 </body>
 </html>
