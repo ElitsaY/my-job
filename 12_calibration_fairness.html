@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Calibration and Fairness</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #f97316;
+            --soft: rgba(249, 115, 22, 0.08);
+            --code-bg: #f8fafc;
+            --warn: #dc2626;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.2rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: var(--soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            display: inline-block;
+        }
+
+        .callout {
+            background: #fff7ed;
+            border-left: 5px solid var(--accent);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            margin: 18px 0;
+        }
+
+        .warning {
+            background: #fef2f2;
+            border-left: 5px solid var(--warn);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            margin: 18px 0;
+        }
+
+        .split-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fff;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .equation-block {
+            background: #0b1220;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 0.9rem;
+        }
+
+        .simple-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 14px;
+        }
+
+        .simple-table th, .simple-table td {
+            text-align: left;
+            padding: 10px 12px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .simple-table th {
+            background: #fff7ed;
+            color: var(--accent);
+        }
+
+        .list-checks {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .list-checks li {
+            margin-bottom: 8px;
+            padding-left: 22px;
+            position: relative;
+        }
+
+        .list-checks li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(249,115,22,0.08), rgba(249,115,22,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <h1>Calibration and Fairness in ML</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #fff7ed; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#fed7aa'" onmouseout="this.style.background='#fff7ed'">← Back</a>
+    </div>
+    <p class="muted">Calibration checks probability reliability, while fairness focuses on equitable treatment across groups.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. What Is Calibration?</h2>
+        <p><span class="badge">Probability Correctness</span> If a model predicts “70% chance of default,” then about 70% of those predictions should actually default. That’s calibration.</p>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Well-Calibrated</h3>
+                <table class="simple-table">
+                    <thead>
+                        <tr>
+                            <th>Predicted</th>
+                            <th>True Frequency</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>0.1</td><td>10%</td></tr>
+                        <tr><td>0.5</td><td>50%</td></tr>
+                        <tr><td>0.9</td><td>90%</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="panel">
+                <h3>Poorly Calibrated</h3>
+                <ul>
+                    <li>Overconfident: predicts 0.9 but true rate is 0.6</li>
+                    <li>Underconfident: predicts 0.6 but true rate is 0.9</li>
+                </ul>
+                <p><strong>Key point:</strong> calibration does not measure accuracy — it measures probability reliability.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>2. Common Calibration Metrics</h2>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Reliability Diagram</h3>
+                <ul>
+                    <li>Bucket predictions (0.0–0.1, 0.1–0.2, etc.)</li>
+                    <li>Compare predicted vs empirical frequency</li>
+                    <li>Perfect calibration → diagonal line</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <h3>Expected Calibration Error (ECE)</h3>
+                <div class="formula-box">
+                    ECE = Σ |Sb| / n × |acc(Sb) − conf(Sb)|
+                </div>
+                <ul>
+                    <li><code>Sb</code> = samples in bin <code>b</code></li>
+                    <li><code>acc</code> = empirical accuracy</li>
+                    <li><code>conf</code> = mean predicted probability</li>
+                    <li>Lower is better</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <h3>Brier Score</h3>
+                <div class="formula-box">
+                    Brier = (1 / n) Σ (pi − yi)^2
+                </div>
+                <p>Measures squared error of predicted probabilities. Unlike accuracy, it rewards calibrated probabilities.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>3. What Is Fairness in ML?</h2>
+        <p>Fairness asks whether a model treats demographic groups equitably. Sensitive attributes often include race, gender, age, and disability status.</p>
+        <div class="callout">
+            Common domains: loan approvals, hiring systems, criminal risk assessment, medical diagnosis.
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Major Fairness Metrics</h2>
+        <p>Different fairness definitions often conflict, so you must choose what to prioritize.</p>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Demographic Parity</h3>
+                <div class="formula-box">P(Ŷ = 1 | A = 0) = P(Ŷ = 1 | A = 1)</div>
+                <p>Decision rates should be equal across groups (ignores ground truth).</p>
+            </div>
+            <div class="panel">
+                <h3>Equalized Odds</h3>
+                <div class="formula-box">P(Ŷ = 1 | Y = y, A = 0) = P(Ŷ = 1 | Y = y, A = 1)</div>
+                <p>Equal true positive and false positive rates across groups.</p>
+            </div>
+            <div class="panel">
+                <h3>Equal Opportunity</h3>
+                <p>Weaker form of equalized odds: only requires equal true positive rate across groups.</p>
+            </div>
+            <div class="panel">
+                <h3>Predictive Parity</h3>
+                <div class="formula-box">P(Y = 1 | Ŷ = 1, A = 0) = P(Y = 1 | Ŷ = 1, A = 1)</div>
+                <p>Positive predictions should be equally reliable across groups (related to calibration).</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>5. Calibration vs Fairness Tradeoff</h2>
+        <div class="warning">
+            If base rates differ between groups, you cannot simultaneously achieve both calibration within groups and equalized odds.
+        </div>
+        <div class="formula-box">P(Y = 1 | A = 0) ≠ P(Y = 1 | A = 1)</div>
+        <p>This impossibility result was shown by researchers including Jon Kleinberg and Sendhil Mullainathan.</p>
+        <h3>Example: Criminal Risk Assessment (e.g., COMPAS)</h3>
+        <p>Different reoffending base rates force a tradeoff between equal false positive rates, equal calibration, and equal precision.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>6. Conceptual Differences</h2>
+        <table class="simple-table">
+            <thead>
+                <tr>
+                    <th>Calibration</th>
+                    <th>Fairness</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Probability correctness</td>
+                    <td>Group equity</td>
+                </tr>
+                <tr>
+                    <td>Individual-level reliability</td>
+                    <td>Group-level equality</td>
+                </tr>
+                <tr>
+                    <td>Statistical property</td>
+                    <td>Normative/social choice</td>
+                </tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section class="content-card">
+        <h2>7. Simple Example</h2>
+        <p>Suppose:</p>
+        <ul>
+            <li>Group A default rate = 10%</li>
+            <li>Group B default rate = 30%</li>
+        </ul>
+        <p>A calibrated model will naturally predict higher probabilities for Group B. But then approval rates and false positive rates can differ, so demographic parity breaks.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>8. Practical Handling</h2>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Calibration Techniques</h3>
+                <ul class="list-checks">
+                    <li>Temperature scaling</li>
+                    <li>Platt scaling</li>
+                    <li>Isotonic regression</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <h3>Fairness Techniques</h3>
+                <ul class="list-checks">
+                    <li>Reweighting data</li>
+                    <li>Adversarial debiasing</li>
+                    <li>Post-processing thresholds per group</li>
+                </ul>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>9. Final Summary</h2>
+        <ul>
+            <li><strong>Calibration</strong> asks: “Are predicted probabilities accurate?”</li>
+            <li><strong>Fairness</strong> asks: “Are groups treated equitably?”</li>
+            <li>In many real-world settings, you must choose which fairness notion to prioritize.</li>
+        </ul>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+<aside class="right-nav" aria-label="Lab navigation">
+    <h3>Lab Pages</h3>
+    <a href="index.html#ml-prep">Home / Index</a>
+    <a href="01_uninformed_search.html">01 - Uninformed Search</a>
+    <a href="02_informed_search.html">02 - Informed Search</a>
+    <a href="03_csp.html">03 - Constraint Satisfaction (CSP)</a>
+    <a href="04_genetic_algorithms.html">04 - Genetic Algorithms</a>
+    <a href="05_games.html">05 - Adversarial Search (Games)</a>
+    <a href="06_ml_intro.html">06 - ML Introduction</a>
+    <a href="07_knn.html">07 - KNN</a>
+    <a href="08_naive_bayes.html">08 - Naive Bayes</a>
+    <a href="09_metrics.html">09 - Evaluation Metrics</a>
+    <a href="10_smote.html">10 - SMOTE</a>
+    <a href="11_lora.html">11 - LoRA</a>
+    <a href="12_calibration_fairness.html">12 - Calibration & Fairness</a>
+</aside>
+
+</body>
+</html>

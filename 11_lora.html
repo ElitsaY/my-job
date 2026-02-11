@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: LoRA (Low-Rank Adaptation)</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card: #ffffff;
+            --muted: #64748b;
+            --accent: #0ea5e9;
+            --soft: rgba(14, 165, 233, 0.08);
+            --code-bg: #f8fafc;
+            --warn: #f97316;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            margin: 0;
+            color: #1e293b;
+            background: #f1f5f9;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1000px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 4px solid var(--accent); display: inline-block; padding-bottom: 8px; }
+        h2 { color: var(--accent); margin-top: 45px; border-bottom: 1px solid #e2e8f0; padding-bottom: 5px; }
+        h3 { color: #334155; margin-top: 25px; font-size: 1.2rem; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+
+        .badge {
+            background: var(--soft);
+            color: var(--accent);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            display: inline-block;
+        }
+
+        .callout {
+            background: #e0f2fe;
+            border-left: 5px solid var(--accent);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            margin: 18px 0;
+        }
+
+        .warning {
+            background: #fff7ed;
+            border-left: 5px solid var(--warn);
+            padding: 18px;
+            border-radius: 0 12px 12px 0;
+            margin: 18px 0;
+        }
+
+        .split-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .panel {
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 16px;
+            background: #fff;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .equation-block {
+            background: #0b1220;
+            color: #e2e8f0;
+            padding: 16px;
+            border-radius: 10px;
+            overflow-x: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+            font-size: 0.9rem;
+        }
+
+        .list-checks {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .list-checks li {
+            margin-bottom: 8px;
+            padding-left: 22px;
+            position: relative;
+        }
+
+        .list-checks li::before {
+            content: "✓";
+            color: var(--accent);
+            font-weight: 700;
+            position: absolute;
+            left: 0;
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(14,165,233,0.08), rgba(14,165,233,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+        <h1>LoRA in Machine Learning (Low-Rank Adaptation)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #e0f2fe; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#bae6fd'" onmouseout="this.style.background='#e0f2fe'">← Back</a>
+    </div>
+    <p class="muted">LoRA is an efficient fine-tuning technique that learns low-rank updates instead of changing all model parameters.</p>
+</header>
+
+<main>
+    <section class="content-card">
+        <h2>1. What Is LoRA?</h2>
+        <p><span class="badge">Efficient Fine-Tuning</span> LoRA (Low-Rank Adaptation) is a technique introduced in the 2021 paper <em>LoRA: Low-Rank Adaptation of Large Language Models</em>. It fine-tunes large pretrained models (especially transformers like GPT and LLaMA) by updating only a small low-rank portion of weights.</p>
+        <p>This dramatically reduces memory usage and training cost while keeping model quality nearly unchanged.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>2. Core Idea</h2>
+        <p>Large models have weight matrices like:</p>
+        <div class="formula-box">W ∈ R<sup>d×k</sup></div>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Traditional Fine-Tuning</h3>
+                <ul class="list-checks">
+                    <li>Update the entire matrix <code>W</code></li>
+                    <li>Store full gradients and optimizer states</li>
+                    <li>Very memory intensive</li>
+                </ul>
+            </div>
+            <div class="panel">
+                <h3>LoRA Trick</h3>
+                <p>Freeze <code>W</code> and learn a low-rank update:</p>
+                <div class="formula-box">W′ = W + ΔW</div>
+                <div class="formula-box">ΔW = A B</div>
+                <p><code>A ∈ R<sup>d×r</sup></code>, <code>B ∈ R<sup>r×k</sup></code>, with <code>r</code> small (4, 8, 16).</p>
+                <p>Since <code>r ≪ d,k</code>, trainable parameters are tiny.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>3. Why It Works</h2>
+        <p>Neural network weight updates often lie in a low-dimensional subspace. LoRA approximates those updates using a compact factorization.</p>
+        <ul class="list-checks">
+            <li>Model quality stays almost unchanged</li>
+            <li>Training is 10–100× cheaper</li>
+            <li>GPU memory usage drops drastically</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>4. Where LoRA Is Applied</h2>
+        <p>LoRA is most commonly applied to Transformer attention layers, especially:</p>
+        <ul>
+            <li>Query projection (<code>Wq</code>)</li>
+            <li>Key projection (<code>Wk</code>)</li>
+            <li>Value projection (<code>Wv</code>)</li>
+        </ul>
+        <div class="callout">
+            Used in models like OpenAI GPT-style models, Hugging Face Transformers, and Meta AI LLaMA.
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>5. Why LoRA Became Popular</h2>
+        <ol>
+            <li><strong>Full fine-tuning is expensive.</strong> 7B+ parameter models require massive GPU memory.</li>
+            <li><strong>LoRA makes it feasible.</strong> Fine-tuning can work on a single GPU, sometimes even consumer hardware.</li>
+            <li><strong>Modular training.</strong> Swap different LoRA adapters for different tasks while keeping the base model fixed.</li>
+        </ol>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Example</h3>
+                <p>One LoRA for medical QA, another for coding — same base model.</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>6. Parameter Comparison Example</h2>
+        <p>If a matrix is <code>4096 × 4096</code>:</p>
+        <div class="split-grid">
+            <div class="panel">
+                <h3>Full Fine-Tuning</h3>
+                <p>~16M trainable parameters</p>
+            </div>
+            <div class="panel">
+                <h3>LoRA (r = 8)</h3>
+                <p><code>4096×8 + 8×4096 ≈ 65K</code> parameters</p>
+                <p>≈ 250× fewer parameters (about 0.4% of full fine-tuning)</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>7. What “Freeze W” Means</h2>
+        <p>With LoRA, the base matrix stays fixed and only the low-rank matrices are trained:</p>
+        <div class="equation-block">Output = XW + XAB</div>
+        <ul>
+            <li><code>X</code> = input activations</li>
+            <li><code>W</code> = frozen pretrained weights</li>
+            <li><code>A, B</code> = small trainable matrices</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>8. Why Low-Rank Matters (Intuition)</h2>
+        <p>A low-rank matrix can be expressed using only a few basis directions. Setting <code>ΔW = AB</code> forces:</p>
+        <div class="formula-box">rank(ΔW) ≤ r</div>
+        <p>This restricts updates to a low-dimensional subspace that still captures most task-specific changes.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>9. Geometric Intuition</h2>
+        <p>Think of <code>W</code> as a huge transformation in 4096-dimensional space. LoRA says: “adjust it only along a few important directions.”</p>
+        <p>Empirically, this is enough for many NLP tasks.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>10. Concrete Numerical Example</h2>
+        <div class="equation-block">W ∈ R<sup>4096×4096</sup>
+Full fine-tuning: 16,777,216 parameters
+LoRA (r = 8): 65,536 parameters ≈ 0.4%</div>
+    </section>
+
+    <section class="content-card">
+        <h2>11. What A and B Learn</h2>
+        <p>LoRA inserts a tiny bottleneck inside the update:</p>
+        <div class="formula-box">h = X B<br>XAB = h A</div>
+        <p><strong>Step 1:</strong> Project into an <code>r</code>-dimensional space. <strong>Step 2:</strong> Expand back to the original dimension.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>12. Transformer Application</h2>
+        <p>In attention layers:</p>
+        <div class="equation-block">Q = X(Wq + AqBq)
+K = X(Wk + AkBk)
+V = X(Wv + AvBv)</div>
+        <p>This is widely used in GPT-style models, LLaMA, and Hugging Face Transformers.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>13. Empirical Insight</h2>
+        <p>The LoRA paper shows that full fine-tuning updates have many tiny singular values:</p>
+        <div class="formula-box">ΔW = U Σ Vᵀ</div>
+        <p>So the update matrix is already approximately low-rank, meaning LoRA does not limit performance much.</p>
+    </section>
+
+    <section class="content-card">
+        <h2>14. Analogy</h2>
+        <div class="callout">
+            Imagine editing a 4000×4000 spreadsheet. Full fine-tuning lets you edit every cell. LoRA only lets you edit using a handful of patterns — yet those patterns capture most useful changes.
+        </div>
+    </section>
+
+    <section class="content-card">
+        <h2>15. Why This Saves Memory</h2>
+        <ul class="list-checks">
+            <li>Full fine-tuning stores gradients and optimizer states for <code>W</code>.</li>
+            <li>LoRA stores them only for <code>A</code> and <code>B</code>.</li>
+            <li>Memory usage drops massively, enabling fine-tuning on single GPUs.</li>
+        </ul>
+    </section>
+
+    <section class="content-card">
+        <h2>16. Inference Trick</h2>
+        <p>After training:</p>
+        <div class="formula-box">W′ = W + AB</div>
+        <ul>
+            <li>Merge <code>AB</code> into <code>W</code> for deployment, or</li>
+            <li>Keep LoRA separate and load adapters dynamically.</li>
+        </ul>
+        <p>That’s why LoRA adapters are small files (often only a few MB).</p>
+    </section>
+</main>
+
+<footer>
+    <p style="text-align: center; color: var(--muted); font-size: 0.9rem;">
+        Artificial Intelligence Lab Documentation &bull; 2026
+    </p>
+</footer>
+
+<aside class="right-nav" aria-label="Lab navigation">
+    <h3>Lab Pages</h3>
+    <a href="index.html#ml-prep">Home / Index</a>
+    <a href="01_uninformed_search.html">01 - Uninformed Search</a>
+    <a href="02_informed_search.html">02 - Informed Search</a>
+    <a href="03_csp.html">03 - Constraint Satisfaction (CSP)</a>
+    <a href="04_genetic_algorithms.html">04 - Genetic Algorithms</a>
+    <a href="05_games.html">05 - Adversarial Search (Games)</a>
+    <a href="06_ml_intro.html">06 - ML Introduction</a>
+    <a href="07_knn.html">07 - KNN</a>
+    <a href="08_naive_bayes.html">08 - Naive Bayes</a>
+    <a href="09_metrics.html">09 - Evaluation Metrics</a>
+    <a href="10_smote.html">10 - SMOTE</a>
+    <a href="11_lora.html">11 - LoRA</a>
+    <a href="12_calibration_fairness.html">12 - Calibration & Fairness</a>
+</aside>
+
+</body>
+</html>
