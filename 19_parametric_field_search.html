@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Parametric & Field Search</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Parametric Search & Field Search in IR</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">These techniques extend keyword search using structured document fields and metadata filters.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#field">Field Search</a>
+    <a href="#parametric">Parametric Search</a>
+    <a href="#compare">Field vs Parametric</a>
+    <a href="#combined">Combined Search</a>
+    <a href="#example">Query Example</a>
+    <a href="#importance">Why Important</a>
+    <a href="#daily">Where You See It</a>
+    <a href="#intuition">Intuition</a>
+    <a href="#definitions">Exam Definitions</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>Overview</h2>
+        <p>Parametric search and field search are used in structured search systems like e-commerce, digital libraries, and databases.</p>
+    </section>
+
+    <section id="field" class="content-card">
+        <h2>1. Field Search</h2>
+        <h3>Definition</h3>
+        <p>Field search restricts query terms to specific document fields such as <code>title</code>, <code>author</code>, <code>abstract</code>, <code>price</code>, or <code>date</code>.</p>
+
+        <h3>Example</h3>
+        <div class="code-container">
+            <div class="code-header">Document fields</div>
+            <pre>Title: Introduction to IR
+Author: Manning
+Year: 2008
+Publisher: Cambridge</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Query</div>
+            <pre>title:"information retrieval"
+author:Manning</pre>
+        </div>
+        <p>This means: search the phrase only in the title field and match “Manning” only in the author field.</p>
+
+        <h3>Example Systems</h3>
+        <ul>
+            <li>Google (site:, filetype:)</li>
+            <li>Amazon (brand:, category:)</li>
+            <li>PubMed (author:, journal:)</li>
+        </ul>
+
+        <h3>How It Works Internally</h3>
+        <p>Instead of one inverted index, maintain separate postings lists per field.</p>
+        <div class="code-container">
+            <div class="code-header">Field-specific postings</div>
+            <pre>title:cat  → [Doc1, Doc3]
+body:cat   → [Doc1, Doc2, Doc3]
+author:cat → []</pre>
+        </div>
+
+        <h3>Why It’s Useful</h3>
+        <ul>
+            <li>More precise search.</li>
+            <li>Reduces irrelevant results.</li>
+            <li>Supports structured filtering.</li>
+        </ul>
+    </section>
+
+    <section id="parametric" class="content-card">
+        <h2>2. Parametric Search</h2>
+        <h3>Definition</h3>
+        <p>Parametric search restricts results using structured attributes such as numeric ranges, dates, categories, or boolean flags.</p>
+
+        <h3>Example (E-commerce)</h3>
+        <div class="code-container">
+            <div class="code-header">Query</div>
+            <pre>laptop
+brand = Dell
+price between 500 and 1000
+rating ≥ 4</pre>
+        </div>
+
+        <h3>Example (Travel)</h3>
+        <div class="code-container">
+            <div class="code-header">Query</div>
+            <pre>Flights NY → LA
+Date: March 10
+Price &lt; $300
+Non-stop only</pre>
+        </div>
+
+        <h3>How It Works Internally</h3>
+        <p>Numeric and date fields use structured indexes such as B-trees, range trees, or sorted arrays.</p>
+        <div class="code-container">
+            <div class="code-header">Price index (example)</div>
+            <pre>500  → Doc1
+700  → Doc2
+1200 → Doc3</pre>
+        </div>
+        <p>Range query <code>price 500–1000</code> returns Doc1 and Doc2.</p>
+    </section>
+
+    <section id="compare" class="content-card">
+        <h2>3. Field vs Parametric Search</h2>
+        <table class="summary-table" aria-label="Field vs Parametric search">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Field Search</th>
+                    <th>Parametric Search</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Uses text fields</td><td>Yes</td><td>Sometimes</td></tr>
+                <tr><td>Uses numeric ranges</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Example</td><td>author:Manning</td><td>price &lt; 1000</td></tr>
+                <tr><td>Index type</td><td>Inverted index</td><td>Range / structured index</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Document-partitioning is dominant in real systems.</strong></p>
+    </section>
+
+    <section id="combined" class="content-card">
+        <h2>4. Combined Search (Most Common)</h2>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>title:"machine learning"
+author:Smith
+year &gt; 2015</pre>
+        </div>
+        <p>Process:</p>
+        <ul>
+            <li>Text conditions → inverted index.</li>
+            <li>Numeric filters → range index.</li>
+            <li>Intersect results.</li>
+        </ul>
+    </section>
+
+    <section id="example" class="content-card">
+        <h2>5. Query Processing Example</h2>
+        <table class="summary-table" aria-label="Query example">
+            <thead>
+                <tr>
+                    <th>Doc</th>
+                    <th>Title</th>
+                    <th>Year</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>D1</td><td>Machine Learning</td><td>2010</td></tr>
+                <tr><td>D2</td><td>Deep Learning</td><td>2018</td></tr>
+                <tr><td>D3</td><td>Machine Vision</td><td>2020</td></tr>
+            </tbody>
+        </table>
+        <div class="code-container">
+            <div class="code-header">Query</div>
+            <pre>title:machine
+year &gt; 2015</pre>
+        </div>
+        <p>Step 1: title index → {D1, D3}</p>
+        <p>Step 2: year filter → {D2, D3}</p>
+        <p>Step 3: intersection → {D3}</p>
+        <p><strong>Result:</strong> D3</p>
+    </section>
+
+    <section id="importance" class="content-card">
+        <h2>6. Why These Are Important</h2>
+        <ul>
+            <li>Users want precise filtering.</li>
+            <li>Pure keyword search is not enough.</li>
+            <li>Structured data improves relevance.</li>
+        </ul>
+    </section>
+
+    <section id="daily" class="content-card">
+        <h2>7. Where You See This Daily</h2>
+        <ul>
+            <li>Amazon filters (price, brand, rating).</li>
+            <li>Google advanced search.</li>
+            <li>LinkedIn filters (location, job title, experience).</li>
+        </ul>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>8. Intuition</h2>
+        <p><strong>Field search</strong> answers: “Search this word in this specific part of the document.”</p>
+        <p><strong>Parametric search</strong> answers: “Filter documents that satisfy these structured conditions.”</p>
+    </section>
+
+    <section id="definitions" class="content-card">
+        <h2>9. Exam-Ready Definitions</h2>
+        <p><strong>Field Search:</strong> A search technique that restricts query terms to specific document fields such as title, author, or abstract.</p>
+        <p><strong>Parametric Search:</strong> A search method that applies structured constraints (e.g., numeric ranges, dates, categories) to filter documents based on metadata attributes.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

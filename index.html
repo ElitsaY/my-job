@@ -9,13 +9,19 @@
 </head>
 <body>
 
-    <header>
+    <header class="site-header">
         <h1> Internships!</h1>
+        <div class="site-stats-inline" aria-label="Site opens on this device">
+            <span class="site-stats-label">Visited times</span>
+            <span id="openCount" class="site-stats-value">—</span>
+        </div>
     </header>
 
     <main>
         <script src="https://cdn.jsdelivr.net/npm/fuse.js@6.6.2"></script>
 
+
+        
         <!-- Tab Navigation -->
         <div class="tabs-container">
             <div class="tabs-nav">
@@ -165,6 +171,31 @@
                                 <td>Gap encoding, variable-length coding, and dictionary compression for faster search</td>
                                 <td><a href="18_compressed_indexes.html" target="_blank" class="resource-link">Learn →</a></td>
                             </tr>
+                            <tr>
+                                <td class="topic-name">Parametric & Field Search</td>
+                                <td>Structured search using field-specific and metadata filters</td>
+                                <td><a href="19_parametric_field_search.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Zone Weighting & TF-IDF</td>
+                                <td>Zone-based scoring, index support, and TF-IDF term weighting</td>
+                                <td><a href="20_zone_weighting.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Vector Space Scoring (VSM)</td>
+                                <td>TF-IDF vectors and cosine similarity for ranked retrieval</td>
+                                <td><a href="21_vector_space_scoring.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Results Lists & Summaries</td>
+                                <td>Presenting ranked results with titles and snippets</td>
+                                <td><a href="22_results_list_summaries.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
+                            <tr>
+                                <td class="topic-name">Precision & Recall</td>
+                                <td>Core evaluation metrics for retrieval systems</td>
+                                <td><a href="23_precision_recall.html" target="_blank" class="resource-link">Learn →</a></td>
+                            </tr>
                         </tbody>
                     </table>
                 </div>
@@ -180,6 +211,21 @@
         // Fuzzy search setup
         let allJobs = [];
         let fuseInstance = null;
+        const opensKey = 'siteOpensTotal';
+
+        function incrementOpenCount() {
+            const current = Number(localStorage.getItem(opensKey) || '0') + 1;
+            localStorage.setItem(opensKey, String(current));
+            return current;
+        }
+
+        function renderOpenCount(count) {
+            const countEl = document.getElementById('openCount');
+            if (countEl) {
+                countEl.textContent = count.toLocaleString();
+            }
+        }
+
 
         // Load jobs from JSON and initialize Fuse.js
         async function initializeSearch() {
@@ -273,6 +319,8 @@
 
         // Initialize on page load
         document.addEventListener('DOMContentLoaded', () => {
+            const opens = incrementOpenCount();
+            renderOpenCount(opens);
             initializeSearch();
             activateTabFromHash();
         });

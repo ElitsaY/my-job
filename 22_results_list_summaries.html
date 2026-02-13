@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Results Lists & Summaries</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Results Lists: Titles & Summaries</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">After ranking documents, search systems present a results list with titles and short summaries.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#results">Results Lists</a>
+    <a href="#titles">Titles</a>
+    <a href="#summaries">Summaries</a>
+</nav>
+
+<main>
+    <section id="results" class="content-card">
+        <h2>1. Results Lists</h2>
+        <p>Having ranked the documents matching a query, we wish to present a results list.</p>
+        <p>Most commonly, the list includes:</p>
+        <ul>
+            <li>Document title</li>
+            <li>Short summary (snippet)</li>
+        </ul>
+    </section>
+
+    <section id="titles" class="content-card">
+        <h2>2. Titles</h2>
+        <p>The title is typically automatically extracted from document metadata.</p>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>Title: Machine Learning Basics
+Author: Smith
+Body: Machine learning is a subfield of AI...</pre>
+        </div>
+    </section>
+
+    <section id="summaries" class="content-card">
+        <h2>3. Summaries</h2>
+        <p>What about the summaries?</p>
+        <p>Search systems generate a short snippet that helps users judge relevance quickly.</p>
+        <p class="important-box">Common strategies: extract a query-biased snippet or show a highlighted text window around query terms.</p>
+    </section>
+
+    <section id="why-summaries" class="content-card">
+        <h2>4. Why Do We Need Summaries?</h2>
+        <p>When users see results, they must quickly decide whether a document is relevant. The snippet helps users:</p>
+        <ul>
+            <li>Understand context.</li>
+            <li>See where query terms appear.</li>
+            <li>Judge relevance quickly.</li>
+        </ul>
+        <p>Without a snippet, users would have to click every link.</p>
+    </section>
+
+    <section id="types" class="content-card">
+        <h2>5. Two Types of Summaries</h2>
+        <table class="summary-table" aria-label="Summary types">
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Description</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Static summary</td><td>Precomputed when the index is built</td></tr>
+                <tr><td>Dynamic summary</td><td>Generated at query time</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="static" class="content-card">
+        <h2>6. Static Summaries</h2>
+        <p>These are created during indexing, such as:</p>
+        <ul>
+            <li>First 1–2 sentences of the document.</li>
+            <li>Abstract (if available).</li>
+            <li>Meta description tag (for web pages).</li>
+        </ul>
+        <h3>Advantages</h3>
+        <ul>
+            <li>Fast (already stored).</li>
+            <li>No computation at query time.</li>
+        </ul>
+        <h3>Disadvantages</h3>
+        <ul>
+            <li>May not contain query terms.</li>
+            <li>Not tailored to the user query.</li>
+        </ul>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>Query: neural networks
+
+Snippet: “Welcome to my blog about artificial intelligence...”</pre>
+        </div>
+    </section>
+
+    <section id="dynamic" class="content-card">
+        <h2>7. Dynamic Summaries (Most Common)</h2>
+        <p>Modern search engines generate <strong>query-dependent snippets</strong> at query time.</p>
+        <h3>How Dynamic Snippets Work</h3>
+        <ul>
+            <li>Find positions of query terms.</li>
+            <li>Extract a text window around them.</li>
+            <li>Highlight query words.</li>
+            <li>Show the most informative window.</li>
+        </ul>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>Document: Machine learning is a subfield of AI. It allows systems to learn from data.
+Query: learn from data
+
+Snippet: “...systems to learn from data...”</pre>
+        </div>
+    </section>
+
+    <section id="choose" class="content-card">
+        <h2>8. How Is the Best Snippet Chosen?</h2>
+        <p>Common sentence-based method:</p>
+        <ul>
+            <li>Split document into sentences.</li>
+            <li>Score each sentence.</li>
+            <li>Pick the highest-scoring sentence(s).</li>
+        </ul>
+        <p>Sentence score can depend on:</p>
+        <ul>
+            <li>Number of query terms.</li>
+            <li>Proximity of query terms.</li>
+            <li>TF-IDF weight of query terms.</li>
+            <li>Whether terms appear close together.</li>
+        </ul>
+    </section>
+
+    <section id="sentence-example" class="content-card">
+        <h2>9. Example of Sentence Scoring</h2>
+        <div class="code-container">
+            <div class="code-header">Query</div>
+            <pre>machine learning algorithms</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Sentences</div>
+            <pre>1) “Machine learning is powerful.”
+2) “Many algorithms are used in data mining.”
+3) “Machine learning algorithms improve performance.”</pre>
+        </div>
+        <p>Sentence 3 contains all terms close together, so it is chosen.</p>
+    </section>
+
+    <section id="window" class="content-card">
+        <h2>10. Snippet Window Approach</h2>
+        <p>Instead of full sentences, some systems choose a fixed-size window:</p>
+        <div class="code-container">
+            <div class="code-header">Window scoring</div>
+            <pre>Window size = 30 words
+Slide window across document
+Score = Σ TF-IDF(query terms in window)</pre>
+        </div>
+        <p>The best window becomes the snippet.</p>
+    </section>
+
+    <section id="techniques" class="content-card">
+        <h2>11. Additional Techniques</h2>
+        <ul>
+            <li>Highlight query terms.</li>
+            <li>Show ellipses (...) around extracted text.</li>
+            <li>Combine two windows if needed.</li>
+            <li>Avoid cutting words in the middle.</li>
+        </ul>
+    </section>
+
+    <section id="tradeoffs" class="content-card">
+        <h2>12. Trade-offs</h2>
+        <table class="summary-table" aria-label="Static vs dynamic tradeoffs">
+            <thead>
+                <tr>
+                    <th>Static</th>
+                    <th>Dynamic</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Fast</td><td>Slightly slower</td></tr>
+                <tr><td>Not query-specific</td><td>Query-specific</td></tr>
+                <tr><td>Lower relevance</td><td>Higher relevance</td></tr>
+            </tbody>
+        </table>
+        <p>Modern systems prefer dynamic snippets.</p>
+    </section>
+
+    <section id="why-not" class="content-card">
+        <h2>13. Why Not Show Entire Paragraphs?</h2>
+        <ul>
+            <li>Users scan quickly.</li>
+            <li>Short snippets reduce cognitive load.</li>
+            <li>Focused context improves decision-making.</li>
+        </ul>
+    </section>
+
+    <section id="big-picture" class="content-card">
+        <h2>14. Big Picture</h2>
+        <p><strong>Ranking</strong> determines which documents are relevant.</p>
+        <p><strong>Snippets</strong> help users see why a document is relevant.</p>
+    </section>
+
+    <section id="exam" class="content-card">
+        <h2>15. Exam-Ready Answer</h2>
+        <p>After ranking documents, search systems typically display the document title and a short summary. While titles are extracted from metadata, summaries are usually generated dynamically at query time by selecting text fragments containing query terms, often using sentence scoring or window-based extraction, to provide query-dependent and informative context.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

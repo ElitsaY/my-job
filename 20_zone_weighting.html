@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Zone Weighting & TF-IDF Scoring</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Scoring Documents: Zone Weighting</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">Zone weighting boosts terms in important document parts and combines with TF-IDF for ranked retrieval.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#zones">What Is a Zone?</a>
+    <a href="#why">Why Zone Weighting?</a>
+    <a href="#formula">Zone Weight Formula</a>
+    <a href="#index">Index Support</a>
+    <a href="#tfidf">Term Weighting (TF-IDF)</a>
+    <a href="#together">How They Fit Together</a>
+    <a href="#summary">Summary Table</a>
+    <a href="#definitions">Exam Definitions</a>
+    <a href="#combined">Combined Example</a>
+    <a href="#difference">Log TF vs Zones</a>
+</nav>
+
+<main>
+    <section id="zones" class="content-card">
+        <h2>1. What Is a Zone?</h2>
+        <p>A <span class="highlight">zone</span> is a specific part of a document.</p>
+        <ul>
+            <li>Title</li>
+            <li>Abstract</li>
+            <li>Body</li>
+            <li>Author</li>
+            <li>Anchor text</li>
+        </ul>
+        <div class="code-container">
+            <div class="code-header">Example document</div>
+            <pre>Title: Machine Learning Basics
+Author: Smith
+Body: Machine learning is a subfield of AI...</pre>
+        </div>
+    </section>
+
+    <section id="why" class="content-card">
+        <h2>2. Why Zone Weighting?</h2>
+        <p>Words in different zones have different importance.</p>
+        <ul>
+            <li>Title match → very important.</li>
+            <li>Body match → less important.</li>
+        </ul>
+        <p>So we assign weights to zones.</p>
+    </section>
+
+    <section id="formula" class="content-card">
+        <h2>3. Zone Weighting Formula (Simple)</h2>
+        <div class="formula-box">Score(d, t) = Σ<sub>zones</sub> g<sub>z</sub> · s<sub>z</sub>(t, d)</div>
+        <ul>
+            <li><code>g<sub>z</sub></code> = weight of zone z</li>
+            <li><code>s<sub>z</sub>(t, d)</code> = score of term t in that zone</li>
+        </ul>
+
+        <h3>Example</h3>
+        <p>Query: <code>machine learning</code></p>
+        <div class="code-container">
+            <div class="code-header">Document</div>
+            <pre>Title: Machine Learning Basics
+Body: This book explains AI</pre>
+        </div>
+        <p>Weights: Title = 0.7, Body = 0.3</p>
+        <p>If the term appears only in title:</p>
+        <div class="formula-box">0.7 × 1 + 0.3 × 0 = 0.7</div>
+        <p>If the term appears only in body:</p>
+        <div class="formula-box">0.7 × 0 + 0.3 × 1 = 0.3</div>
+    </section>
+
+    <section id="index" class="content-card">
+        <h2>4. Index Support for Scoring</h2>
+        <p>Ranked retrieval needs extra information beyond a Boolean index.</p>
+        <ul>
+            <li><strong>Term frequency (tf)</strong></li>
+            <li><strong>Document frequency (df)</strong></li>
+            <li><strong>Document length</strong></li>
+            <li><strong>Zone information</strong></li>
+        </ul>
+        <div class="code-container">
+            <div class="code-header">Posting entries</div>
+            <pre>cat → (Doc1, tf=3)
+       (Doc3, tf=1)
+       (Doc7, tf=5)</pre>
+        </div>
+        <p>This enables TF-IDF and other scoring formulas.</p>
+    </section>
+
+    <section id="tfidf" class="content-card">
+        <h2>5. Term Weighting (TF-IDF)</h2>
+        <h3>Term Frequency (TF)</h3>
+        <p>Raw frequency:</p>
+        <div class="formula-box">tf(t, d) = number of times term appears</div>
+        <p>Often use log scaling:</p>
+        <div class="formula-box">tf' = 1 + log(tf)</div>
+
+        <h3>Inverse Document Frequency (IDF)</h3>
+        <div class="formula-box">idf(t) = log(N / df(t))</div>
+        <p>Rare terms get higher weight; common terms get lower weight.</p>
+
+        <h3>TF-IDF</h3>
+        <div class="formula-box">weight(t, d) = tf(t, d) × idf(t)</div>
+
+        <h3>Full Document Score</h3>
+        <div class="formula-box">Score(d, q) = Σ<sub>t ∈ q</sub> tf(t, d) × idf(t)</div>
+    </section>
+
+    <section id="together" class="content-card">
+        <h2>6. How All Three Fit Together</h2>
+        <p>When a user searches <code>machine learning</code>:</p>
+        <ul>
+            <li>Retrieve postings for both terms.</li>
+            <li>Use tf, idf, and doc length from index.</li>
+            <li>Apply zone weighting.</li>
+            <li>Compute final score and rank documents.</li>
+        </ul>
+    </section>
+
+    <section id="summary" class="content-card">
+        <h2>7. Summary Table</h2>
+        <table class="summary-table" aria-label="Zone weighting summary">
+            <thead>
+                <tr>
+                    <th>Concept</th>
+                    <th>Purpose</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Zone weighting</td><td>Different importance for document parts</td></tr>
+                <tr><td>Index support</td><td>Store tf, df, doc length</td></tr>
+                <tr><td>Term weighting</td><td>Compute importance using TF-IDF</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="definitions" class="content-card">
+        <h2>8. Exam-Ready Definitions</h2>
+        <p><strong>Zone Weighting:</strong> A scoring technique where different document zones (title, body, etc.) are assigned different weights during ranking.</p>
+        <p><strong>Index Support for Scoring:</strong> The storage of additional information such as term frequency, document frequency, and document length in the index to enable ranked retrieval.</p>
+        <p><strong>Term Weighting:</strong> The assignment of importance scores to terms using measures like TF-IDF to rank documents based on query relevance.</p>
+        <p class="important-box">If you'd like, I can explain cosine similarity, BM25 scoring, or pivoted length normalization.</p>
+    </section>
+
+    <section id="combined" class="content-card">
+        <h2>9. Combined Example: TF-IDF + Zone Weights</h2>
+        <p>We combine zone-weighted TF with IDF for a full score.</p>
+
+        <div class="code-container">
+            <div class="code-header">Documents</div>
+            <pre>D1 Title: Machine Learning Basics
+D1 Body:  Machine learning is important
+
+D2 Title: Deep Learning
+D2 Body:  Learning algorithms and AI</pre>
+        </div>
+
+        <p>Query: <code>machine learning</code></p>
+        <p>Zone weights: Title = 0.6, Body = 0.4</p>
+
+        <h3>Step 1: IDF</h3>
+        <div class="code-container">
+            <div class="code-header">Document frequencies</div>
+            <pre>N = 2
+idf(machine)  = log(2/1) = log(2)
+idf(learning) = log(2/2) = 0</pre>
+        </div>
+
+        <h3>Step 2: Zone-Weighted TF</h3>
+        <div class="code-container">
+            <div class="code-header">Zone-weighted TF</div>
+            <pre>D1 machine: (1 × 0.6) + (1 × 0.4) = 1.0
+D1 learning: (1 × 0.6) + (1 × 0.4) = 1.0
+
+D2 machine: 0
+D2 learning: (1 × 0.6) + (1 × 0.4) = 1.0</pre>
+        </div>
+
+        <h3>Step 3: Final TF-IDF Scores</h3>
+        <div class="code-container">
+            <div class="code-header">Scores</div>
+            <pre>D1 score = 1.0 × log(2) + 1.0 × 0 = log(2)
+D2 score = 0 × log(2) + 1.0 × 0 = 0</pre>
+        </div>
+
+        <p><strong>Ranking:</strong> D1 ranks higher because the rare term <code>machine</code> appears in an important zone.</p>
+
+        <div class="formula-box">Score(d, q) = Σ<sub>t ∈ q</sub> idf(t) × (Σ<sub>zones</sub> g<sub>z</sub> × tf<sub>z</sub>(t, d))</div>
+    </section>
+
+    <section id="difference" class="content-card">
+        <h2>10. Log TF vs Zone Weighting</h2>
+        <p>These modify term importance in different ways:</p>
+        <table class="summary-table" aria-label="Log TF vs zone weighting">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Log TF Scaling</th>
+                    <th>Zone Weighting</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Focus</td><td>Frequency magnitude</td><td>Location importance</td></tr>
+                <tr><td>Solves</td><td>Repetition explosion</td><td>Structural importance</td></tr>
+                <tr><td>Affects</td><td>Within-document frequency</td><td>Across-document structure</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Numerical Example</h3>
+        <p>Term appears 1 time in title and 5 times in body. Title weight = 0.6, Body weight = 0.4.</p>
+        <div class="code-container">
+            <div class="code-header">Case 1: Log TF only</div>
+            <pre>Total TF = 6
+Log TF = 1 + log(6) ≈ 1.78</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Case 2: Zone weighting only</div>
+            <pre>(1 × 0.6) + (5 × 0.4) = 2.6</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Case 3: Combined (realistic)</div>
+            <pre>Title: 1 + log(1) = 1
+Body:  1 + log(5) ≈ 1.7
+Weighted: (1 × 0.6) + (1.7 × 0.4) = 1.28</pre>
+        </div>
+
+        <p><strong>Key idea:</strong> Log TF controls how much repetition matters, while zone weighting controls where the term appears.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

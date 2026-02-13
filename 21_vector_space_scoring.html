@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Vector Space Scoring (VSM)</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Vector Space Scoring (Vector Space Model)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">VSM represents documents and queries as vectors and ranks by cosine similarity.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#core">Core Idea</a>
+    <a href="#why">Why Use VSM</a>
+    <a href="#weights">TF-IDF Weights</a>
+    <a href="#cosine">Cosine Similarity</a>
+    <a href="#why-cosine">Why Cosine</a>
+    <a href="#example">Numerical Example</a>
+    <a href="#intuition">Geometric Intuition</a>
+    <a href="#formula">Full Formula</a>
+    <a href="#benefits">Why It Works</a>
+    <a href="#limits">Limitations</a>
+</nav>
+
+<main>
+    <section id="core" class="content-card">
+        <h2>1. Core Idea</h2>
+        <p>Each term in the vocabulary is a dimension. Documents and queries are vectors of term weights (usually TF-IDF).</p>
+        <div class="code-container">
+            <div class="code-header">Example vector</div>
+            <pre>Vocabulary: machine, learning, data
+
+Document vector:
+d = (w_machine, w_learning, w_data)</pre>
+        </div>
+    </section>
+
+    <section id="why" class="content-card">
+        <h2>2. Why Use Vector Space Model?</h2>
+        <p>Boolean retrieval gives only <strong>match / no match</strong>. VSM provides a <strong>degree of relevance</strong> so documents can be ranked.</p>
+    </section>
+
+    <section id="weights" class="content-card">
+        <h2>3. Term Weights (TF-IDF)</h2>
+        <div class="formula-box">w(t, d) = tf(t, d) × idf(t)</div>
+        <ul>
+            <li>High TF → important in the document.</li>
+            <li>High IDF → rare in the collection.</li>
+        </ul>
+    </section>
+
+    <section id="cosine" class="content-card">
+        <h2>4. Cosine Similarity</h2>
+        <div class="formula-box">cosine similarity = (d · q) / (||d|| · ||q||)</div>
+        <ul>
+            <li><code>d · q</code> = dot product</li>
+            <li><code>||d||</code> = length of document vector</li>
+            <li><code>||q||</code> = length of query vector</li>
+        </ul>
+    </section>
+
+    <section id="why-cosine" class="content-card">
+        <h2>5. Why Cosine?</h2>
+        <p>Without normalization, long documents get higher scores because they contain more words. Cosine normalizes by vector length and measures the angle between vectors.</p>
+        <ul>
+            <li>Same direction → similarity close to 1</li>
+            <li>Orthogonal → similarity 0</li>
+        </ul>
+    </section>
+
+    <section id="example" class="content-card">
+        <h2>6. Full Numerical Example</h2>
+        <p><strong>Vocabulary:</strong> machine, learning</p>
+        <div class="code-container">
+            <div class="code-header">Documents</div>
+            <pre>D1: machine machine learning
+D2: learning learning learning</pre>
+        </div>
+
+        <h3>Step 1: IDF</h3>
+        <div class="code-container">
+            <div class="code-header">IDF values</div>
+            <pre>N = 2
+idf(machine)  = log(2/1) = log(2)
+idf(learning) = log(2/2) = 0</pre>
+        </div>
+
+        <h3>Step 2: TF-IDF Weights</h3>
+        <div class="code-container">
+            <div class="code-header">D1 weights</div>
+            <pre>machine: tf=2 → 2 × log(2)
+learning: tf=1 → 1 × 0 = 0
+D1 = (2 log 2, 0)</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">D2 weights</div>
+            <pre>machine: 0
+learning: tf=3 → 3 × 0 = 0
+D2 = (0, 0)</pre>
+        </div>
+
+        <h3>Step 3: Query Vector</h3>
+        <div class="code-container">
+            <div class="code-header">Query: "machine learning"</div>
+            <pre>q = (log 2, 0)</pre>
+        </div>
+
+        <h3>Step 4: Dot Product</h3>
+        <div class="code-container">
+            <div class="code-header">Dot products</div>
+            <pre>D1 · q = (2 log 2)(log 2) + 0 = 2 (log 2)^2
+D2 · q = 0</pre>
+        </div>
+
+        <h3>Step 5: Normalize</h3>
+        <div class="code-container">
+            <div class="code-header">Vector lengths</div>
+            <pre>||D1|| = 2 log 2
+||q||  = log 2</pre>
+        </div>
+        <div class="formula-box">cos(D1, q) = 1</div>
+        <div class="formula-box">cos(D2, q) = 0</div>
+
+        <p><strong>Final ranking:</strong> D1 &gt; D2</p>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>7. Geometric Intuition</h2>
+        <ul>
+            <li>Same direction → cosine = 1</li>
+            <li>Orthogonal → cosine = 0</li>
+            <li>Opposite → cosine = -1 (rare in IR)</li>
+        </ul>
+    </section>
+
+    <section id="formula" class="content-card">
+        <h2>8. Full Formula (General Case)</h2>
+        <div class="formula-box">Score(d, q) = (Σ w(t, d) w(t, q)) / (√Σ w(t, d)^2 · √Σ w(t, q)^2)</div>
+    </section>
+
+    <section id="benefits" class="content-card">
+        <h2>9. Why It Works Well</h2>
+        <ul>
+            <li>Supports partial matching.</li>
+            <li>Ranks documents by relevance.</li>
+            <li>Handles multiple query terms naturally.</li>
+            <li>Length normalization prevents long-document bias.</li>
+        </ul>
+    </section>
+
+    <section id="limits" class="content-card">
+        <h2>10. Limitations</h2>
+        <ul>
+            <li>Assumes term independence.</li>
+            <li>Ignores word order.</li>
+            <li>Does not capture semantic similarity.</li>
+        </ul>
+        <p class="important-box">Modern neural models improve on VSM, but VSM remains a core IR baseline.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Precision & Recall</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Precision and Recall</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">Precision and recall are core evaluation metrics for ranked and unranked retrieval systems.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#setup">Basic Setup</a>
+    <a href="#precision">Precision</a>
+    <a href="#recall">Recall</a>
+    <a href="#intuition">Intuition</a>
+    <a href="#tradeoff">Tradeoff</a>
+    <a href="#extremes">Extreme Cases</a>
+    <a href="#visual">Visual Interpretation</a>
+    <a href="#importance">Which Is More Important?</a>
+    <a href="#f1">F1 Score</a>
+    <a href="#ranked">Ranked Retrieval</a>
+    <a href="#definitions">Exam Definitions</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>Overview</h2>
+        <p><span class="highlight">Precision</span> asks: “How accurate are the retrieved results?”</p>
+        <p><span class="highlight">Recall</span> asks: “How complete are the retrieved results?”</p>
+    </section>
+
+    <section id="setup" class="content-card">
+        <h2>1. Basic Setup</h2>
+        <p>Suppose a collection has 100 documents. For a query:</p>
+        <ul>
+            <li>20 documents are truly relevant.</li>
+            <li>The system retrieves 15 documents.</li>
+            <li>Out of those 15, 12 are relevant.</li>
+        </ul>
+        <table class="summary-table" aria-label="Confusion matrix">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Relevant</th>
+                    <th>Not Relevant</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Retrieved</td><td>12</td><td>3</td></tr>
+                <tr><td>Not Retrieved</td><td>8</td><td>77</td></tr>
+            </tbody>
+        </table>
+        <p>Where: TP = 12, FP = 3, FN = 8, TN = 77.</p>
+    </section>
+
+    <section id="precision" class="content-card">
+        <h2>2. Precision</h2>
+        <div class="formula-box">Precision = TP / (TP + FP)</div>
+        <div class="formula-box">Precision = 12 / 15 = 0.8</div>
+        <p>So 80% of retrieved documents are relevant.</p>
+    </section>
+
+    <section id="recall" class="content-card">
+        <h2>3. Recall</h2>
+        <div class="formula-box">Recall = TP / (TP + FN)</div>
+        <div class="formula-box">Recall = 12 / 20 = 0.6</div>
+        <p>So the system finds 60% of all relevant documents.</p>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>4. Intuition</h2>
+        <p>Imagine searching for “research papers on neural networks”:</p>
+        <ul>
+            <li>High precision → most results are actually about neural networks.</li>
+            <li>High recall → you found almost all relevant papers.</li>
+        </ul>
+    </section>
+
+    <section id="tradeoff" class="content-card">
+        <h2>5. Precision vs Recall Tradeoff</h2>
+        <ul>
+            <li>Retrieve only top 3 highly relevant docs → precision high, recall low.</li>
+            <li>Retrieve 50 docs with weak matches → recall high, precision lower.</li>
+        </ul>
+        <p>They usually move in opposite directions.</p>
+    </section>
+
+    <section id="extremes" class="content-card">
+        <h2>6. Extreme Cases</h2>
+        <ul>
+            <li>Retrieve nothing → recall = 0, precision undefined.</li>
+            <li>Retrieve everything → recall = 1, precision is very low.</li>
+        </ul>
+    </section>
+
+    <section id="visual" class="content-card">
+        <h2>7. Visual Interpretation</h2>
+        <p>Think of two overlapping circles:</p>
+        <ul>
+            <li>All relevant documents = one circle.</li>
+            <li>Retrieved documents = another circle.</li>
+            <li>Overlap = relevant retrieved.</li>
+        </ul>
+        <p><strong>Precision</strong> = overlap / retrieved</p>
+        <p><strong>Recall</strong> = overlap / relevant</p>
+    </section>
+
+    <section id="importance" class="content-card">
+        <h2>8. Which Is More Important?</h2>
+        <table class="summary-table" aria-label="Precision vs recall by application">
+            <thead>
+                <tr>
+                    <th>Application</th>
+                    <th>More Important</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Medical diagnosis</td><td>Recall</td></tr>
+                <tr><td>Legal search</td><td>Recall</td></tr>
+                <tr><td>Web search</td><td>Precision</td></tr>
+                <tr><td>Spam detection</td><td>Precision</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="f1" class="content-card">
+        <h2>9. F1 Score (Combined Measure)</h2>
+        <div class="formula-box">F1 = 2 × (Precision × Recall) / (Precision + Recall)</div>
+        <div class="formula-box">F1 = 2 × (0.8 × 0.6) / (0.8 + 0.6) = 0.685</div>
+        <p>F1 balances precision and recall.</p>
+    </section>
+
+    <section id="ranked" class="content-card">
+        <h2>10. Ranked Retrieval Case</h2>
+        <p>In ranked search, precision is often measured at top-k results (e.g., Precision@10).</p>
+        <p>Recall may be hard to measure at web scale because total relevant documents are unknown.</p>
+    </section>
+
+    <section id="definitions" class="content-card">
+        <h2>11. Exam-Ready Definitions</h2>
+        <p><strong>Precision</strong> is the fraction of retrieved documents that are relevant to the query.</p>
+        <p><strong>Recall</strong> is the fraction of relevant documents in the collection that are successfully retrieved by the system.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
