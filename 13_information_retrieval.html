@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: K-Gram Indexes for Spell Checking</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        .badge {
+            display: inline-block;
+            background: #eef2ff;
+            color: #0b3a8a;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.8rem;
+            margin-right: 5px;
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>K-Gram Indexes in Information Retrieval (Spell Checking)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">K-gram indexes help search systems handle spelling correction, wildcard queries, and approximate string matching efficiently.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#kgram">What Is a K-Gram?</a>
+    <a href="#index">What Is a K-Gram Index?</a>
+    <a href="#spell">Spell Checking Overview</a>
+    <a href="#step2">Step 2: Candidates</a>
+    <a href="#useful">Why Useful</a>
+    <a href="#pipeline">Pipeline</a>
+    <a href="#intuition">Intuition</a>
+</nav>
+
+<main>
+    <section id="kgram" class="content-card">
+        <h2>1. What Is a K-Gram?</h2>
+        <p>A <span class="highlight">k-gram</span> is a substring of length <strong>k</strong> taken from a word.</p>
+        <ul>
+            <li>If <code>k = 2</code>, we call them <span class="badge">bigrams</span>.</li>
+            <li>If <code>k = 3</code>, we call them <span class="badge">trigrams</span>.</li>
+        </ul>
+        <p>To improve matching, we usually add boundary symbols <code>$</code> at the beginning and end of the word.</p>
+        <div class="code-container">
+            <div class="code-header">Example: word = "cat"</div>
+            <pre>$cat$
+
+Bigrams (k = 2):
+$c
+ca
+at
+t$
+
+Trigrams (k = 3):
+$ca
+cat
+at$</pre>
+        </div>
+    </section>
+
+    <section id="index" class="content-card">
+        <h2>2. What Is a K-Gram Index?</h2>
+        <p>A <span class="highlight">k-gram index</span> maps each k-gram to the list of words that contain it.</p>
+        <div class="code-container">
+            <div class="code-header">Example dictionary</div>
+            <pre>cat
+car
+cart
+cut</pre>
+        </div>
+        <table class="summary-table" aria-label="Sample k-gram index">
+            <thead>
+                <tr>
+                    <th>K-gram</th>
+                    <th>Words containing it</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>$c</td><td>cat, car, cart, cut</td></tr>
+                <tr><td>ca</td><td>cat, car, cart</td></tr>
+                <tr><td>ar</td><td>car, cart</td></tr>
+                <tr><td>at</td><td>cat</td></tr>
+                <tr><td>rt</td><td>cart</td></tr>
+                <tr><td>ut</td><td>cut</td></tr>
+            </tbody>
+        </table>
+        <p class="important-box">Instead of searching the whole dictionary, we look up a few k-grams and retrieve candidate words quickly.</p>
+    </section>
+
+    <section id="spell" class="content-card">
+        <h2>3. How It Helps in Spell Checking</h2>
+        <p>Suppose a user types <code>"catt"</code>. We want to find similar correct words.</p>
+        <ol>
+            <li>Break the query into k-grams.</li>
+            <li>Find candidate words using the k-gram index.</li>
+            <li>Compute similarity with the Jaccard coefficient.</li>
+            <li>Apply edit distance (Levenshtein) to pick the best final correction.</li>
+        </ol>
+        <div class="formula-box">
+            J(A, B) = |A &cap; B| / |A &cup; B|
+        </div>
+        <p>Where <strong>A</strong> is the set of k-grams of the misspelled word, and <strong>B</strong> is the set of k-grams of a candidate word.</p>
+    </section>
+
+    <section id="step2" class="content-card">
+        <h2>4. Step 2: Find Candidate Words (Detailed)</h2>
+        <p>This step is the core reason k-gram indexes make spell checking efficient: it narrows the search to likely candidates.</p>
+
+        <h3>Setup Example</h3>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>cat
+car
+cart
+cut
+cute
+at</pre>
+        </div>
+
+        <h3>Step 2.1: Generate Query K-Grams</h3>
+        <div class="code-container">
+            <div class="code-header">Query: "catt" (k = 2)</div>
+            <pre>$catt$
+
+Bigrams:
+$c
+ca
+at
+tt
+t$</pre>
+        </div>
+
+        <h3>Step 2.2: Retrieve Word Lists for Each Bigram</h3>
+        <table class="summary-table" aria-label="Bigram lookups">
+            <thead>
+                <tr>
+                    <th>Query Bigram</th>
+                    <th>Words Found</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>$c</td><td>cat, car, cart, cut, cute</td></tr>
+                <tr><td>ca</td><td>cat, car, cart</td></tr>
+                <tr><td>at</td><td>cat, at</td></tr>
+                <tr><td>tt</td><td>(none)</td></tr>
+                <tr><td>t$</td><td>cat, cut, at</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Step 2.3: Merge and Count Matches</h3>
+        <table class="summary-table" aria-label="Candidate counts">
+            <thead>
+                <tr>
+                    <th>Word</th>
+                    <th>Matching Bigrams</th>
+                    <th>Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>cat</td><td>$c, ca, at, t$</td><td>4</td></tr>
+                <tr><td>car</td><td>$c, ca</td><td>2</td></tr>
+                <tr><td>cart</td><td>$c, ca</td><td>2</td></tr>
+                <tr><td>cut</td><td>$c, t$</td><td>2</td></tr>
+                <tr><td>cute</td><td>$c</td><td>1</td></tr>
+                <tr><td>at</td><td>at, t$</td><td>2</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Step 2.4: Apply a Similarity Threshold</h3>
+        <p>We usually filter candidates before applying edit distance. For example, compare <code>"catt"</code> vs <code>"cat"</code>:</p>
+        <div class="formula-box">
+            J = 4 / (5 + 4 - 4) = 4/5 = 0.8
+        </div>
+        <p>High similarity keeps a candidate; low similarity discards it.</p>
+
+        <h3>Why This Is Efficient</h3>
+        <ul>
+            <li>Without k-grams, edit distance must be computed against every word in the dictionary.</li>
+            <li>With k-grams, we reduce to a small candidate set (often tens or hundreds of words).</li>
+        </ul>
+
+        <h3>Implementation View</h3>
+        <div class="code-container">
+            <div class="code-header">Candidate generation (pseudo)</div>
+            <pre>candidates = empty_map
+
+for each kgram in query:
+    word_list = index[kgram]
+    for word in word_list:
+        candidates[word] += 1
+
+filter candidates using Jaccard threshold</pre>
+        </div>
+
+        <h3>Choosing K</h3>
+        <table class="summary-table" aria-label="K tradeoff">
+            <thead>
+                <tr>
+                    <th>k value</th>
+                    <th>Effect</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Small k (2)</td><td>More matches, larger candidate set</td></tr>
+                <tr><td>Larger k (3 or 4)</td><td>Fewer matches, smaller candidate set</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="useful" class="content-card">
+        <h2>5. Why K-Gram Indexes Are Useful</h2>
+        <ul>
+            <li>Reduce search space.</li>
+            <li>Quickly find similar words.</li>
+            <li>Scale well for large vocabularies.</li>
+            <li>Enable wildcard queries like <code>"ca*"</code>.</li>
+        </ul>
+    </section>
+
+    <section id="pipeline" class="content-card">
+        <h2>6. Overall Spell Checking Pipeline</h2>
+        <ol>
+            <li>User enters word.</li>
+            <li>Generate k-grams.</li>
+            <li>Retrieve candidate words from the k-gram index.</li>
+            <li>Filter using Jaccard similarity.</li>
+            <li>Rank using edit distance and return the best correction.</li>
+        </ol>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>7. Intuition and One-Sentence Summary</h2>
+        <p>Think of k-grams as overlapping pieces of a word. If two words share many small pieces, they are probably similar.</p>
+        <div class="code-container">
+            <div class="code-header">Example overlap</div>
+            <pre>catt
+cat
+
+Shared bigrams:
+$c
+ca
+at</pre>
+        </div>
+        <p><strong>In one sentence:</strong> A k-gram index is an inverted index over substrings of length k that efficiently finds words similar to a misspelled query for spell correction.</p>
+        <p class="important-box">If you want, I can also explain how this compares to edit distance directly, how it supports wildcard queries, or how to build it step-by-step.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

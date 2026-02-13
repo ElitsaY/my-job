@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Blocked Sort-Based Indexing (BSBI)</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Blocked Sort-Based Indexing (BSBI)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">BSBI is an external memory algorithm for building inverted indexes when the collection does not fit in RAM.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#need">Why BSBI</a>
+    <a href="#idea">Main Idea</a>
+    <a href="#steps">Step-by-Step</a>
+    <a href="#merge">Merge Blocks</a>
+    <a href="#sorting">Why Sorting</a>
+    <a href="#complexity">Complexity</a>
+    <a href="#overview">Visual Overview</a>
+    <a href="#efficient">Why Efficient</a>
+    <a href="#comparison">BSBI vs SPIMI</a>
+    <a href="#insight">Key Insight</a>
+    <a href="#definition">Exam Definition</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>What Is BSBI?</h2>
+        <p><span class="highlight">Blocked Sort-Based Indexing (BSBI)</span> builds an inverted index efficiently for very large collections by using external sorting and disk-based merging.</p>
+    </section>
+
+    <section id="need" class="content-card">
+        <h2>1. Why Do We Need BSBI?</h2>
+        <p>When building an inverted index, we generate many <code>(term, docID)</code> pairs.</p>
+        <ul>
+            <li>Large collections create millions of pairs.</li>
+            <li>All pairs cannot fit in RAM.</li>
+            <li>We cannot sort everything at once in memory.</li>
+        </ul>
+        <p class="important-box">BSBI solves this using external sorting and block-based processing.</p>
+    </section>
+
+    <section id="idea" class="content-card">
+        <h2>2. Main Idea of BSBI</h2>
+        <div class="code-container">
+            <div class="code-header">Divide → Sort → Write → Merge</div>
+            <pre>Split documents into blocks
+For each block:
+    Generate (termID, docID)
+    Sort in memory
+    Write partial index to disk
+Merge all partial indexes</pre>
+        </div>
+    </section>
+
+    <section id="steps" class="content-card">
+        <h2>3. Step-by-Step Algorithm</h2>
+
+        <h3>Step 1: Split Collection into Blocks</h3>
+        <p>If memory can handle 100,000 pairs and the collection generates 10 million pairs:</p>
+        <div class="formula-box">10,000,000 / 100,000 = 100 blocks</div>
+
+        <h3>Step 2: Process Each Block</h3>
+        <p><strong>(a) Parse documents and extract tokens</strong></p>
+        <div class="code-container">
+            <div class="code-header">Example documents</div>
+            <pre>Doc1: "cat dog"
+Doc2: "dog fish"</pre>
+        </div>
+        <p>Generate term-doc pairs:</p>
+        <div class="code-container">
+            <div class="code-header">Pairs</div>
+            <pre>(cat, 1)
+(dog, 1)
+(dog, 2)
+(fish, 2)</pre>
+        </div>
+
+        <p><strong>(b) Convert terms to termIDs</strong></p>
+        <div class="code-container">
+            <div class="code-header">Term IDs</div>
+            <pre>cat  → 1
+dog  → 2
+fish → 3</pre>
+        </div>
+        <p>Pairs become:</p>
+        <div class="code-container">
+            <div class="code-header">TermID pairs</div>
+            <pre>(1, 1)
+(2, 1)
+(2, 2)
+(3, 2)</pre>
+        </div>
+
+        <p><strong>(c) Sort pairs by termID, then docID</strong></p>
+        <div class="code-container">
+            <div class="code-header">Sorted</div>
+            <pre>(1, 1)
+(2, 1)
+(2, 2)
+(3, 2)</pre>
+        </div>
+
+        <p><strong>(d) Write partial inverted index to disk</strong></p>
+        <div class="code-container">
+            <div class="code-header">Postings lists</div>
+            <pre>1 → [1]
+2 → [1, 2]
+3 → [2]</pre>
+        </div>
+        <p>Repeat for all blocks.</p>
+    </section>
+
+    <section id="merge" class="content-card">
+        <h2>4. Final Step: Merge Blocks</h2>
+        <p>Merge partial indexes using multi-way merge (like merge sort).</p>
+        <div class="code-container">
+            <div class="code-header">Example merge</div>
+            <pre>Block 1:
+cat → [1, 4]
+dog → [1]
+
+Block 2:
+cat → [7]
+fish → [2]
+
+Final:
+cat → [1, 4, 7]
+dog → [1]
+fish → [2]</pre>
+        </div>
+    </section>
+
+    <section id="sorting" class="content-card">
+        <h2>5. Why Sorting Is Important</h2>
+        <ul>
+            <li>Groups the same terms together.</li>
+            <li>Makes postings list creation easy.</li>
+            <li>Enables efficient merging across blocks.</li>
+        </ul>
+    </section>
+
+    <section id="complexity" class="content-card">
+        <h2>6. Complexity</h2>
+        <p>Let <code>T</code> be total term-doc pairs and <code>B</code> be block size.</p>
+        <div class="formula-box">Time complexity ≈ O(T log T)</div>
+        <p>Sorting happens within blocks and during merge. Disk I/O dominates cost in practice.</p>
+    </section>
+
+    <section id="overview" class="content-card">
+        <h2>7. Visual Overview</h2>
+        <div class="code-container">
+            <div class="code-header">Pipeline</div>
+            <pre>DOCUMENTS
+    ↓
+Split into Blocks
+    ↓
+For Each Block:
+    Parse → Generate (termID, docID)
+    Sort in memory
+    Write to disk
+    ↓
+Multi-way Merge
+    ↓
+FINAL INVERTED INDEX</pre>
+        </div>
+    </section>
+
+    <section id="efficient" class="content-card">
+        <h2>8. Why BSBI Is Efficient</h2>
+        <ul>
+            <li>Works when the index does not fit in RAM.</li>
+            <li>Uses sequential disk access (fast).</li>
+            <li>Relies on external merge sort.</li>
+            <li>Scales to web-size collections.</li>
+        </ul>
+    </section>
+
+    <section id="comparison" class="content-card">
+        <h2>9. BSBI vs SPIMI</h2>
+        <table class="summary-table" aria-label="BSBI vs SPIMI comparison">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>BSBI</th>
+                    <th>SPIMI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Needs global sorting</td><td>Yes</td><td>No</td></tr>
+                <tr><td>Uses termID mapping</td><td>Yes</td><td>No</td></tr>
+                <tr><td>Memory usage</td><td>Efficient</td><td>More flexible</td></tr>
+                <tr><td>Speed</td><td>Slightly slower</td><td>Faster</td></tr>
+            </tbody>
+        </table>
+        <p class="important-box">SPIMI avoids global sorting but uses hash tables.</p>
+    </section>
+
+    <section id="insight" class="content-card">
+        <h2>10. Key Insight</h2>
+        <p>BSBI is essentially <strong>external merge sort applied to inverted index construction</strong>.</p>
+    </section>
+
+    <section id="definition" class="content-card">
+        <h2>11. Exam Definition</h2>
+        <p><strong>Blocked Sort-Based Indexing (BSBI)</strong> is an external memory indexing algorithm that divides a document collection into memory-sized blocks, sorts term–document pairs within each block, writes partial inverted indexes to disk, and then merges them to create a final inverted index.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

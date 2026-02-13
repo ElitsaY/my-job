@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Single-Pass In-Memory Indexing (SPIMI)</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Single-Pass In-Memory Indexing (SPIMI)</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">SPIMI builds inverted indexes in memory without sorting term-doc pairs, then writes sorted term blocks to disk.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#why">Why SPIMI</a>
+    <a href="#idea">Core Idea</a>
+    <a href="#steps">Step-by-Step</a>
+    <a href="#single-pass">Why Single-Pass</a>
+    <a href="#comparison">SPIMI vs BSBI</a>
+    <a href="#speed">Why Faster</a>
+    <a href="#flow">Visual Flow</a>
+    <a href="#advantages">Advantages</a>
+    <a href="#limits">Limitations</a>
+    <a href="#insight">Key Insight</a>
+    <a href="#definition">Exam Definition</a>
+    <a href="#example">Worked Example</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>What Is SPIMI?</h2>
+        <p><span class="highlight">Single-Pass In-Memory Indexing (SPIMI)</span> builds an inverted index efficiently for large document collections when the full index cannot fit in memory.</p>
+    </section>
+
+    <section id="why" class="content-card">
+        <h2>1. Why SPIMI Was Introduced</h2>
+        <p>BSBI generates all <code>(termID, docID)</code> pairs, sorts them, then builds postings lists. Sorting large numbers of pairs is expensive.</p>
+        <p class="important-box">SPIMI removes the global sorting step by building postings lists directly in memory.</p>
+    </section>
+
+    <section id="idea" class="content-card">
+        <h2>2. Core Idea of SPIMI</h2>
+        <p>Instead of <code>(term, docID) → sort → group</code>, SPIMI directly does:</p>
+        <div class="formula-box">term → append docID to postings list</div>
+        <p>Then it writes the dictionary block to disk once memory is full.</p>
+    </section>
+
+    <section id="steps" class="content-card">
+        <h2>3. Step-by-Step Algorithm</h2>
+
+        <h3>Step 1: Initialize an Empty Dictionary</h3>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>Dictionary = {}</pre>
+        </div>
+        <p>Each entry stores:</p>
+        <div class="formula-box">term → postings list</div>
+
+        <h3>Step 2: Parse Documents Sequentially</h3>
+        <p>For each token:</p>
+        <ul>
+            <li>If term not in dictionary, create an entry.</li>
+            <li>Append docID to the postings list.</li>
+        </ul>
+
+        <h3>Step 3: When Memory Is Full</h3>
+        <ul>
+            <li>Sort dictionary terms (not pairs).</li>
+            <li>Write the block's inverted index to disk.</li>
+            <li>Clear memory and continue.</li>
+        </ul>
+
+        <h3>Step 4: Final Merge</h3>
+        <p>Merge partial inverted indexes similarly to BSBI.</p>
+    </section>
+
+    <section id="single-pass" class="content-card">
+        <h2>4. Why It Is Called "Single-Pass"</h2>
+        <ul>
+            <li>Each token is processed exactly once.</li>
+            <li>No global sorting of term-doc pairs.</li>
+            <li>Postings lists are built directly during parsing.</li>
+        </ul>
+    </section>
+
+    <section id="comparison" class="content-card">
+        <h2>5. Comparison: SPIMI vs BSBI</h2>
+        <table class="summary-table" aria-label="SPIMI vs BSBI comparison">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>BSBI</th>
+                    <th>SPIMI</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Uses termID mapping</td><td>Yes</td><td>No</td></tr>
+                <tr><td>Sorts term-doc pairs</td><td>Yes</td><td>No</td></tr>
+                <tr><td>Uses hash table</td><td>No</td><td>Yes</td></tr>
+                <tr><td>Memory usage</td><td>Controlled</td><td>Flexible</td></tr>
+                <tr><td>Speed</td><td>Slower</td><td>Faster</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="speed" class="content-card">
+        <h2>6. Why SPIMI Is Faster</h2>
+        <p>In BSBI:</p>
+        <div class="formula-box">O(T log T)</div>
+        <p>due to sorting all pairs.</p>
+        <p>In SPIMI:</p>
+        <div class="formula-box">O(T)</div>
+        <p>for hash insertions, with only term sorting per block (smaller).</p>
+    </section>
+
+    <section id="flow" class="content-card">
+        <h2>7. Visual Flow</h2>
+        <div class="code-container">
+            <div class="code-header">Pipeline</div>
+            <pre>DOCUMENT STREAM
+      ↓
+Read Document
+      ↓
+For each term:
+    if term not in dictionary:
+         create entry
+    append docID
+      ↓
+Memory Full?
+      ↓ Yes
+Sort dictionary terms
+Write block to disk
+Clear memory
+      ↓
+Repeat
+      ↓
+Merge blocks
+      ↓
+FINAL INVERTED INDEX</pre>
+        </div>
+    </section>
+
+    <section id="advantages" class="content-card">
+        <h2>8. Advantages of SPIMI</h2>
+        <ul>
+            <li>Faster than BSBI.</li>
+            <li>No global sorting of term-doc pairs.</li>
+            <li>Direct postings construction.</li>
+            <li>Simpler implementation.</li>
+            <li>Better cache performance.</li>
+        </ul>
+    </section>
+
+    <section id="limits" class="content-card">
+        <h2>9. Limitations</h2>
+        <ul>
+            <li>Still requires a final merge.</li>
+            <li>Memory must be managed carefully.</li>
+            <li>Hash table resizing can be costly.</li>
+        </ul>
+    </section>
+
+    <section id="insight" class="content-card">
+        <h2>10. Key Insight</h2>
+        <p><strong>BSBI = "Sort first, then group"</strong></p>
+        <p><strong>SPIMI = "Group directly, no sorting of pairs"</strong></p>
+    </section>
+
+    <section id="definition" class="content-card">
+        <h2>11. Exam Definition</h2>
+        <p><strong>Single-Pass In-Memory Indexing (SPIMI)</strong> is an inverted index construction algorithm that processes documents sequentially, builds postings lists directly in memory using a hash-based dictionary without sorting term–document pairs, writes sorted term blocks to disk when memory is full, and merges them into a final index.</p>
+        <p class="important-box">If you'd like, I can explain a detailed numerical comparison with BSBI, time and space complexity, or compression during SPIMI indexing.</p>
+    </section>
+
+    <section id="example" class="content-card">
+        <h2>12. Worked Example (SPIMI)</h2>
+        <p>Assume we have 4 documents and memory can hold only 2 documents at a time, so we build 2 blocks.</p>
+
+        <div class="code-container">
+            <div class="code-header">Document Collection</div>
+            <pre>Doc1: "cat dog cat"
+Doc2: "dog fish"
+Doc3: "cat fish bird"
+Doc4: "dog bird"</pre>
+        </div>
+
+        <h3>Block 1 (Doc1, Doc2)</h3>
+        <p><strong>After Doc1:</strong></p>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>cat → [1]
+dog → [1]</pre>
+        </div>
+        <p><strong>After Doc2:</strong></p>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>cat  → [1]
+dog  → [1, 2]
+fish → [2]</pre>
+        </div>
+        <p>Memory full → sort terms and write Block 1:</p>
+        <div class="code-container">
+            <div class="code-header">Block 1 (sorted terms)</div>
+            <pre>cat  → [1]
+dog  → [1, 2]
+fish → [2]</pre>
+        </div>
+
+        <h3>Block 2 (Doc3, Doc4)</h3>
+        <p><strong>After Doc3:</strong></p>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>cat  → [3]
+fish → [3]
+bird → [3]</pre>
+        </div>
+        <p><strong>After Doc4:</strong></p>
+        <div class="code-container">
+            <div class="code-header">Dictionary</div>
+            <pre>cat  → [3]
+fish → [3]
+bird → [3, 4]
+dog  → [4]</pre>
+        </div>
+        <p>Memory full → sort terms and write Block 2:</p>
+        <div class="code-container">
+            <div class="code-header">Block 2 (sorted terms)</div>
+            <pre>bird → [3, 4]
+cat  → [3]
+dog  → [4]
+fish → [3]</pre>
+        </div>
+
+        <h3>Final Merge</h3>
+        <div class="code-container">
+            <div class="code-header">Merged Inverted Index</div>
+            <pre>bird → [3, 4]
+cat  → [1, 3]
+dog  → [1, 2, 4]
+fish → [2, 3]</pre>
+        </div>
+
+        <p class="important-box">Notice that we never created or sorted (term, docID) pairs. Postings were built directly.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

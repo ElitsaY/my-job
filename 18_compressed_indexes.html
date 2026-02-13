@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Compressed Indexes in IR</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Compressed Indexes in Information Retrieval</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">Compression reduces index size, speeds up disk access, and improves cache performance for large-scale search systems.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#why">Why Compress</a>
+    <a href="#what">What Gets Compressed</a>
+    <a href="#postings">Compressing Postings</a>
+    <a href="#vb">Variable Byte</a>
+    <a href="#gamma">Gamma Coding</a>
+    <a href="#gap">Why Gaps Work</a>
+    <a href="#positions">TF & Positions</a>
+    <a href="#dict">Dictionary Compression</a>
+    <a href="#structure">Overall Structure</a>
+    <a href="#speed">Why Faster</a>
+    <a href="#example">Before vs After</a>
+    <a href="#tradeoff">Tradeoff</a>
+    <a href="#insight">Key Insight</a>
+    <a href="#definition">Exam Definition</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>What Is a Compressed Index?</h2>
+        <p>A <span class="highlight">compressed index</span> is an inverted index where postings lists and dictionary terms are encoded with compression techniques to reduce space and improve speed.</p>
+    </section>
+
+    <section id="why" class="content-card">
+        <h2>1. Why Do We Compress Indexes?</h2>
+        <ul>
+            <li>Large collections produce massive indexes (hundreds of GBs or TBs).</li>
+            <li>Disk I/O is expensive.</li>
+            <li>Smaller indexes improve cache performance.</li>
+        </ul>
+        <p class="important-box">Compression reduces storage and disk transfer time, often speeding up queries despite decompression cost.</p>
+    </section>
+
+    <section id="what" class="content-card">
+        <h2>2. What Gets Compressed?</h2>
+        <p>Two main components:</p>
+        <ul>
+            <li><strong>Dictionary (terms)</strong></li>
+            <li><strong>Postings lists (docIDs, term frequencies, positions)</strong></li>
+        </ul>
+    </section>
+
+    <section id="postings" class="content-card">
+        <h2>3. Compressing Postings Lists</h2>
+        <p>Postings lists store sorted docIDs.</p>
+        <div class="code-container">
+            <div class="code-header">Example postings</div>
+            <pre>cat → [3, 10, 25, 100]</pre>
+        </div>
+
+        <h3>Step 1: Gap Encoding</h3>
+        <p>Store differences between consecutive docIDs:</p>
+        <div class="code-container">
+            <div class="code-header">Gap encoding</div>
+            <pre>Original: 3, 10, 25, 100
+Gaps:     3, 7, 15, 75</pre>
+        </div>
+        <p>Smaller numbers compress better.</p>
+
+        <h3>Step 2: Variable-Length Encoding</h3>
+        <p>Use fewer bits for small numbers. Common methods:</p>
+        <ul>
+            <li>Variable Byte (VB) coding</li>
+            <li>Gamma coding</li>
+            <li>Delta coding</li>
+        </ul>
+    </section>
+
+    <section id="vb" class="content-card">
+        <h2>4. Variable Byte (VB) Encoding Example</h2>
+        <p>Use 7 bits for data and 1 bit to mark the end of a number.</p>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>Number 7 in binary: 0000111
+Stored in 1 byte</pre>
+        </div>
+        <p>Small gaps use fewer bytes, giving strong compression.</p>
+    </section>
+
+    <section id="gamma" class="content-card">
+        <h2>5. Gamma Coding (Concept)</h2>
+        <p>Good for small numbers.</p>
+        <div class="code-container">
+            <div class="code-header">Example: N = 10</div>
+            <pre>Binary(10) = 1010
+Length = 4
+Unary(4) = 1110
+Remove leading 1 → 010
+Encoded: 1110 010</pre>
+        </div>
+    </section>
+
+    <section id="gap" class="content-card">
+        <h2>6. Why Gap Encoding Works</h2>
+        <p>Sorted docIDs often have small gaps.</p>
+        <div class="code-container">
+            <div class="code-header">Dense IDs</div>
+            <pre>DocIDs: 1001, 1002, 1003, 1004
+Gaps:   1001, 1, 1, 1</pre>
+        </div>
+        <p>Small numbers compress extremely well.</p>
+    </section>
+
+    <section id="positions" class="content-card">
+        <h2>7. Compressing Term Frequencies & Positions</h2>
+        <p>Positions in positional indexes are also sorted and gap-encoded:</p>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>cat → (doc 3: positions 1, 8, 15)
+Gaps: 1, 7, 7</pre>
+        </div>
+    </section>
+
+    <section id="dict" class="content-card">
+        <h2>8. Dictionary Compression</h2>
+        <p>Dictionary terms often share prefixes.</p>
+
+        <h3>Blocking</h3>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>apple#5apply#5application#11apt#3</pre>
+        </div>
+
+        <h3>Front Coding</h3>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>apple
+2 ly
+7 ication</pre>
+        </div>
+        <p>Store prefix once and encode differences.</p>
+    </section>
+
+    <section id="structure" class="content-card">
+        <h2>9. Overall Compression Structure</h2>
+        <div class="formula-box">Compressed dictionary + compressed postings lists</div>
+    </section>
+
+    <section id="speed" class="content-card">
+        <h2>10. Why Compression Improves Speed</h2>
+        <ul>
+            <li>Disk I/O is slower than CPU.</li>
+            <li>Smaller indexes mean fewer disk reads.</li>
+            <li>Better cache locality.</li>
+        </ul>
+        <p class="important-box">Net effect: faster query processing despite decompression cost.</p>
+    </section>
+
+    <section id="example" class="content-card">
+        <h2>11. Example Before vs After Compression</h2>
+        <div class="code-container">
+            <div class="code-header">Original postings</div>
+            <pre>[1000, 1050, 1100, 1200]
+Stored as 4 integers = 16 bytes</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Gap + VB (example)</div>
+            <pre>Gaps: [1000, 50, 50, 100]
+Encoded size: ~6–8 bytes</pre>
+        </div>
+        <p>At web scale, savings are huge.</p>
+    </section>
+
+    <section id="tradeoff" class="content-card">
+        <h2>12. Tradeoff</h2>
+        <table class="summary-table" aria-label="Compression tradeoffs">
+            <thead>
+                <tr>
+                    <th>Advantage</th>
+                    <th>Disadvantage</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Smaller index</td><td>Decompression cost</td></tr>
+                <tr><td>Faster disk access</td><td>More complex code</td></tr>
+                <tr><td>Better cache usage</td><td>Slight CPU overhead</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="insight" class="content-card">
+        <h2>13. Key Insight</h2>
+        <ul>
+            <li>Postings lists are sorted.</li>
+            <li>Gaps are small.</li>
+            <li>Natural language has redundancy.</li>
+        </ul>
+    </section>
+
+    <section id="definition" class="content-card">
+        <h2>14. Exam-Ready Definition</h2>
+        <p><strong>A compressed index</strong> is an inverted index where postings lists and dictionary entries are encoded using techniques such as gap encoding and variable-length coding to reduce storage space and improve query performance.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

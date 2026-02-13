@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Context-Aware Spell Checking</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Context-Aware Spell Checking</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">Context-aware spell checkers use surrounding words to fix real-word errors that traditional spell checkers miss.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#what">What It Is</a>
+    <a href="#types">Error Types</a>
+    <a href="#core">Core Idea</a>
+    <a href="#lm">Language Models</a>
+    <a href="#noisy">Noisy Channel</a>
+    <a href="#system">System Pipeline</a>
+    <a href="#example">Walkthrough</a>
+    <a href="#modern">Modern Methods</a>
+    <a href="#compare">Comparison</a>
+    <a href="#harder">Why It Is Harder</a>
+    <a href="#intuition">Intuition</a>
+    <a href="#definition">Final Definition</a>
+    <a href="#independence">Independence Assumptions</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>Context Matters</h2>
+        <p>Traditional spell checking fixes words in isolation. But real language has context:</p>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>❌ I went to the see.
+✅ I went to the sea.</pre>
+        </div>
+        <p>Both <code>see</code> and <code>sea</code> are valid words. Only the context reveals the error.</p>
+    </section>
+
+    <section id="what" class="content-card">
+        <h2>1. What Is Context-Aware Spell Checking?</h2>
+        <p>It is a spell-checking approach that uses <span class="highlight">surrounding words</span> to detect and correct errors.</p>
+        <ul>
+            <li>Handles real-word errors (<code>form → from</code>).</li>
+            <li>Fixes homophones (<code>their → there</code>).</li>
+            <li>Supports grammar-sensitive corrections.</li>
+            <li>Detects word confusion errors.</li>
+        </ul>
+    </section>
+
+    <section id="types" class="content-card">
+        <h2>2. Types of Spelling Errors</h2>
+        <h3>Non-word Errors</h3>
+        <p>Misspellings not in the dictionary, e.g., <code>recieve → receive</code>. Traditional k-gram + edit distance works well.</p>
+        <h3>Real-word Errors (Hard)</h3>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>I have too apples.</pre>
+        </div>
+        <p><code>too</code> is valid but wrong in context. Context-aware systems correct this.</p>
+    </section>
+
+    <section id="core" class="content-card">
+        <h2>3. Core Idea</h2>
+        <p>Instead of checking:</p>
+        <div class="formula-box">P(word)</div>
+        <p>We check:</p>
+        <div class="formula-box">P(word | surrounding words)</div>
+        <p>We estimate these probabilities from large text corpora.</p>
+    </section>
+
+    <section id="lm" class="content-card">
+        <h2>4. Language Models (Main Technique)</h2>
+        <p>A language model estimates:</p>
+        <div class="formula-box">P(w<sub>i</sub> | w<sub>i-1</sub>, w<sub>i-2</sub>, ...)</div>
+        <p>Meaning: how likely is a word given its previous words?</p>
+
+        <h3>N-Gram Language Models</h3>
+        <div class="formula-box">Bigram: P(w<sub>i</sub> | w<sub>i-1</sub>)</div>
+        <div class="formula-box">Trigram: P(w<sub>i</sub> | w<sub>i-1</sub>, w<sub>i-2</sub>)</div>
+
+        <h3>Example</h3>
+        <div class="code-container">
+            <div class="code-header">Sentence</div>
+            <pre>I have too apples</pre>
+        </div>
+        <p>Compare:</p>
+        <ul>
+            <li>P(too | have) vs P(two | have) vs P(to | have)</li>
+            <li>P(apples | too) vs P(apples | two)</li>
+        </ul>
+        <p>The system scores full sentence probabilities and chooses the higher one:</p>
+        <div class="code-container">
+            <div class="code-header">Higher probability wins</div>
+            <pre>P(I have too apples)
+P(I have two apples)</pre>
+        </div>
+    </section>
+
+    <section id="noisy" class="content-card">
+        <h2>5. Noisy Channel Model (Classic IR Approach)</h2>
+        <p>The model assumes the correct sentence was generated first, then noise (typing errors) corrupted it.</p>
+        <div class="formula-box">Best correction = arg max<sub>w</sub> P(w | x)</div>
+        <p>Using Bayes rule:</p>
+        <div class="formula-box">P(w | x) = P(x | w) P(w) / P(x)</div>
+        <p>Ignore the constant P(x):</p>
+        <div class="formula-box">arg max<sub>w</sub> P(x | w) P(w)</div>
+        <ul>
+            <li>P(w): language model (context).</li>
+            <li>P(x | w): error model (how likely a typo occurs).</li>
+        </ul>
+        <h3>Example</h3>
+        <div class="code-container">
+            <div class="code-header">Sentence</div>
+            <pre>This letter is form you</pre>
+        </div>
+        <p>Candidates for <code>form</code> include <code>from</code>. The model favors:</p>
+        <div class="formula-box">P(from | This letter is _ you) &gt;&gt; P(form | This letter is _ you)</div>
+    </section>
+
+    <section id="system" class="content-card">
+        <h2>6. How the Full System Works</h2>
+        <ol>
+            <li>Generate candidates (k-gram index + edit distance).</li>
+            <li>Score each candidate in context using a language model.</li>
+            <li>Choose the highest-probability sentence.</li>
+        </ol>
+    </section>
+
+    <section id="example" class="content-card">
+        <h2>7. Example Walkthrough</h2>
+        <div class="code-container">
+            <div class="code-header">Input</div>
+            <pre>She went too school</pre>
+        </div>
+        <p>Candidates for <code>too</code>:</p>
+        <div class="code-container">
+            <div class="code-header">Candidates</div>
+            <pre>too
+to
+two</pre>
+        </div>
+        <p>Compute:</p>
+        <div class="code-container">
+            <div class="code-header">Bigram probabilities</div>
+            <pre>P(to | went)  high
+P(school | to)  high
+P(school | too)  low
+P(school | two)  nearly zero</pre>
+        </div>
+        <p>Result:</p>
+        <div class="code-container">
+            <div class="code-header">Correction</div>
+            <pre>✅ She went to school</pre>
+        </div>
+    </section>
+
+    <section id="modern" class="content-card">
+        <h2>8. Modern Context-Aware Spell Checking</h2>
+        <p>Traditional method: n-gram language models.</p>
+        <p>Modern method: neural language models (Transformers, BERT-style masked prediction).</p>
+        <div class="code-container">
+            <div class="code-header">Example</div>
+            <pre>I am going too the store.
+
+Model predicts:
+"too" → "to"</pre>
+        </div>
+    </section>
+
+    <section id="compare" class="content-card">
+        <h2>9. Comparison: Traditional vs Context-Aware</h2>
+        <table class="summary-table" aria-label="Comparison table">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Traditional</th>
+                    <th>Context-Aware</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Fix typos</td><td>✅</td><td>✅</td></tr>
+                <tr><td>Fix real-word errors</td><td>❌</td><td>✅</td></tr>
+                <tr><td>Uses sentence meaning</td><td>❌</td><td>✅</td></tr>
+                <tr><td>Uses probability model</td><td>❌</td><td>✅</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <section id="harder" class="content-card">
+        <h2>10. Why It Is Harder</h2>
+        <ul>
+            <li>Must model language statistics accurately.</li>
+            <li>Handles ambiguity (multiple valid candidates).</li>
+            <li>Balances grammar and semantics.</li>
+            <li>Needs to run efficiently at scale.</li>
+        </ul>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>11. Intuition</h2>
+        <p>Traditional spell checking asks:</p>
+        <div class="formula-box">"Is this word close to another word?"</div>
+        <p>Context-aware spell checking asks:</p>
+        <div class="formula-box">"Does this word make sense here?"</div>
+    </section>
+
+    <section id="definition" class="content-card">
+        <h2>12. Final Definition (Exam-Ready)</h2>
+        <p><strong>Context-aware spell checking</strong> detects and corrects spelling errors by considering surrounding words using probabilistic language models (n-grams or neural LMs), often implemented with the noisy channel framework.</p>
+        <p class="important-box">If you'd like, I can next explain how BERT performs contextual correction, how confusion matrices are used, or a full numerical probability example step-by-step.</p>
+    </section>
+
+    <section id="independence" class="content-card">
+        <h2>13. Are We Assuming Conditional Independence in Bayes?</h2>
+        <p><strong>Short answer:</strong> Bayes rule itself makes no independence assumption. Independence assumptions appear when we model <code>P(x | w)</code> and <code>P(w)</code> in practice.</p>
+
+        <h3>1) Bayes Rule (Always True)</h3>
+        <div class="formula-box">P(w | x) = P(x | w) P(w) / P(x)</div>
+
+        <h3>2) Independence in the Error Model</h3>
+        <p>We usually assume errors at different positions are independent:</p>
+        <div class="formula-box">P(x | w) = ∏ P(x<sub>i</sub> | w<sub>i</sub>)</div>
+
+        <h3>3) Independence in the Language Model</h3>
+        <p>We approximate full context with a Markov assumption:</p>
+        <div class="formula-box">P(w<sub>i</sub> | w<sub>1</sub>...w<sub>i-1</sub>) ≈ P(w<sub>i</sub> | w<sub>i-1</sub>)</div>
+        <div class="formula-box">Trigram: P(w<sub>i</sub> | w<sub>i-1</sub>, w<sub>i-2</sub>)</div>
+
+        <p><strong>Bottom line:</strong> Bayes is exact; the independence assumptions are modeling choices to make the problem tractable.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>

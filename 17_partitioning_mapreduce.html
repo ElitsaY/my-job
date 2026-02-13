@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Lab: Partitioning & MapReduce for Indexing</title>
+    <style>
+        :root {
+            --bg: #0f1724;
+            --card: #ffffff;
+            --muted: #6b7280;
+            --accent: #2563eb;
+            --soft: rgba(16,24,40,0.05);
+            --code-bg: #f1f5f9;
+        }
+
+        body {
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+            margin: 0;
+            color: #0b1220;
+            background: #f7fafc;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.6;
+        }
+
+        header, main, footer {
+            max-width: 1100px;
+            margin: 24px auto;
+            padding: 0 20px;
+        }
+
+        h1 { color: var(--bg); border-bottom: 3px solid var(--accent); padding-bottom: 10px; }
+        h2 { color: var(--accent); margin-top: 40px; border-left: 4px solid var(--accent); padding-left: 15px; }
+        h3 { color: var(--bg); margin-top: 25px; }
+
+        .content-card {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 6px 20px var(--soft);
+            margin-bottom: 24px;
+        }
+
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+
+        .highlight {
+            font-weight: 700;
+            color: var(--accent);
+        }
+
+        .important-box {
+            background: #eff6ff;
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 20px 0;
+            font-style: italic;
+        }
+
+        .summary-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.95rem;
+            margin-top: 20px;
+            overflow: hidden;
+            border-radius: 8px;
+            border: 1px solid #eef2f7;
+        }
+
+        .summary-table thead th {
+            background: #f8fafc;
+            text-align: left;
+            padding: 12px;
+            font-weight: 700;
+            border-bottom: 2px solid #eef2f7;
+        }
+
+        .summary-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .summary-table tr:nth-child(even) {
+            background: rgba(37,99,235,0.02);
+        }
+
+        code {
+            background: var(--code-bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .formula-box {
+            background: var(--code-bg);
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', Courier, monospace;
+            margin: 15px 0;
+        }
+
+        .code-container {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            margin: 16px 0;
+        }
+
+        .code-header {
+            background: #f3f4f6;
+            padding: 8px 12px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 12px;
+            color: #374151;
+            border-bottom: 1px solid #e5e7eb;
+            border-radius: 8px 8px 0 0;
+        }
+
+        pre {
+            margin: 0;
+            padding: 14px;
+            overflow: auto;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #111827;
+        }
+
+        @media (max-width: 720px) {
+            .summary-table { display: block; overflow-x: auto; }
+            .content-card { padding: 18px; }
+        }
+
+        /* Right-side navigation */
+        .right-nav {
+            position: fixed;
+            right: 20px;
+            top: 120px;
+            width: 220px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(16,24,40,0.08);
+            padding: 12px;
+            font-family: Inter, system-ui, -apple-system, sans-serif;
+            z-index: 60;
+        }
+        .right-nav h3 {
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
+            color: var(--bg);
+        }
+        .right-nav a {
+            display: block;
+            color: #0b1220;
+            text-decoration: none;
+            padding: 8px 10px;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            font-size: 0.9rem;
+        }
+        .right-nav a:hover {
+            background: linear-gradient(90deg, rgba(37,99,235,0.06), rgba(37,99,235,0.02));
+        }
+        @media (max-width: 980px) {
+            .right-nav { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h1>Scaling Indexing: Partitioning & MapReduce</h1>
+        <a href="index.html#ml-prep" style="color: var(--accent); text-decoration: none; font-weight: 600; padding: 8px 16px; background: #eef2ff; border-radius: 6px; transition: all 0.2s ease;" onmouseover="this.style.background='#dfe7fe'" onmouseout="this.style.background='#eef2ff'">← Back</a>
+    </div>
+    <p class="muted">Document partitioning, term partitioning, and MapReduce are core ideas for web-scale indexing and search.</p>
+</header>
+
+<nav class="right-nav">
+    <h3>On this page</h3>
+    <a href="#doc-part">Document-Partitioned Index</a>
+    <a href="#term-part">Term-Partitioned Index</a>
+    <a href="#compare">Document vs Term</a>
+    <a href="#mapreduce">MapReduce Basics</a>
+    <a href="#mr-index">MapReduce Indexing</a>
+    <a href="#power">Why MapReduce</a>
+    <a href="#relationship">How They Relate</a>
+    <a href="#big-picture">Big Picture</a>
+    <a href="#intuition">Intuition</a>
+    <a href="#definitions">Exam Definitions</a>
+    <a href="#mr-example">MapReduce Example</a>
+</nav>
+
+<main>
+    <section class="content-card">
+        <h2>Overview</h2>
+        <p>These three ideas focus on scaling search systems to massive collections by distributing indexing and query processing across many machines.</p>
+    </section>
+
+    <section id="doc-part" class="content-card">
+        <h2>1. Document-Partitioned Index</h2>
+        <h3>Idea</h3>
+        <p>Split documents across machines. Each machine builds an inverted index only for its assigned documents.</p>
+
+        <h3>How It Works</h3>
+        <table class="summary-table" aria-label="Document partitioning example">
+            <thead>
+                <tr>
+                    <th>Machine</th>
+                    <th>Documents</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>M1</td><td>Doc 1–250M</td></tr>
+                <tr><td>M2</td><td>Doc 250M–500M</td></tr>
+                <tr><td>M3</td><td>Doc 500M–750M</td></tr>
+                <tr><td>M4</td><td>Doc 750M–1B</td></tr>
+            </tbody>
+        </table>
+        <p>Each machine stores <code>term → postings list</code> only for its documents.</p>
+
+        <h3>Query Processing</h3>
+        <div class="code-container">
+            <div class="code-header">Architecture</div>
+            <pre>Query
+   ↓
+Broadcast to all shards
+   ↓
+Each shard returns top-k
+   ↓
+Merge results
+   ↓
+Final ranking</pre>
+        </div>
+
+        <h3>Advantages</h3>
+        <ul>
+            <li>Parallel query processing.</li>
+            <li>Good load balancing.</li>
+            <li>Easy to scale by adding machines.</li>
+            <li>Most common design in web search.</li>
+        </ul>
+
+        <h3>Used In</h3>
+        <p>Modern search engines such as Google and Bing.</p>
+    </section>
+
+    <section id="term-part" class="content-card">
+        <h2>2. Term-Partitioned Index</h2>
+        <h3>Idea</h3>
+        <p>Split the vocabulary across machines. Each machine handles a subset of terms.</p>
+        <table class="summary-table" aria-label="Term partitioning example">
+            <thead>
+                <tr>
+                    <th>Machine</th>
+                    <th>Terms</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>M1</td><td>a–f</td></tr>
+                <tr><td>M2</td><td>g–m</td></tr>
+                <tr><td>M3</td><td>n–z</td></tr>
+            </tbody>
+        </table>
+
+        <h3>Problem</h3>
+        <p>To compute intersections like <code>intersection(cat, dog)</code>, postings are on different machines, which causes heavy network traffic and complex merging.</p>
+        <ul>
+            <li>High network communication.</li>
+            <li>Slow query processing.</li>
+            <li>Ranking becomes difficult.</li>
+        </ul>
+
+        <p class="important-box">Term partitioning is rarely used in production systems.</p>
+    </section>
+
+    <section id="compare" class="content-card">
+        <h2>3. Document vs Term Partitioning</h2>
+        <table class="summary-table" aria-label="Document vs term partitioning">
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Document Partitioned</th>
+                    <th>Term Partitioned</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Partition by</td><td>Documents</td><td>Terms</td></tr>
+                <tr><td>Query sent to</td><td>All machines</td><td>Only term machines</td></tr>
+                <tr><td>Network cost</td><td>Low</td><td>High</td></tr>
+                <tr><td>Ranking</td><td>Easy</td><td>Hard</td></tr>
+                <tr><td>Used in practice</td><td>✅ Yes</td><td>❌ Rare</td></tr>
+            </tbody>
+        </table>
+        <p><strong>Document partitioning is dominant in real systems.</strong></p>
+    </section>
+
+    <section id="mapreduce" class="content-card">
+        <h2>4. MapReduce for Index Construction</h2>
+        <p><strong>MapReduce</strong> is a distributed programming model introduced by Google to process huge datasets.</p>
+        <div class="formula-box">Map → Shuffle → Reduce</div>
+    </section>
+
+    <section id="mr-index" class="content-card">
+        <h2>5. MapReduce for Building an Inverted Index</h2>
+        <h3>Map Phase</h3>
+        <p>Input: documents. Emit <code>(term, docID)</code> for each term.</p>
+        <div class="code-container">
+            <div class="code-header">Mapper example</div>
+            <pre>Doc1: "cat dog"
+(cat, 1)
+(dog, 1)</pre>
+        </div>
+
+        <h3>Shuffle Phase</h3>
+        <p>Groups pairs by term:</p>
+        <div class="code-container">
+            <div class="code-header">Grouped</div>
+            <pre>cat → [1, 3, 7]
+dog → [1, 2, 4]</pre>
+        </div>
+
+        <h3>Reduce Phase</h3>
+        <p>Reducers build postings lists:</p>
+        <div class="code-container">
+            <div class="code-header">Reducer output</div>
+            <pre>term → sorted docIDs</pre>
+        </div>
+    </section>
+
+    <section id="power" class="content-card">
+        <h2>6. Why MapReduce Is Powerful</h2>
+        <ul>
+            <li>Automatically parallel.</li>
+            <li>Fault tolerant.</li>
+            <li>Handles huge datasets.</li>
+            <li>Works across thousands of machines.</li>
+        </ul>
+    </section>
+
+    <section id="relationship" class="content-card">
+        <h2>7. Relationship Between These Concepts</h2>
+        <ul>
+            <li><strong>Document-partitioned index:</strong> used at query time.</li>
+            <li><strong>MapReduce:</strong> used at index construction time.</li>
+            <li><strong>Term-partitioning:</strong> alternative approach, rarely used.</li>
+        </ul>
+    </section>
+
+    <section id="big-picture" class="content-card">
+        <h2>8. Full Big Picture</h2>
+        <div class="code-container">
+            <div class="code-header">Index construction</div>
+            <pre>Documents → Map → Shuffle → Reduce → Inverted Index</pre>
+        </div>
+        <div class="code-container">
+            <div class="code-header">Query processing</div>
+            <pre>Query → Broadcast → Local scoring → Merge</pre>
+        </div>
+    </section>
+
+    <section id="intuition" class="content-card">
+        <h2>9. Intuition</h2>
+        <ul>
+            <li><strong>Document partitioning:</strong> splitting books across libraries.</li>
+            <li><strong>Term partitioning:</strong> splitting dictionary alphabet across libraries.</li>
+            <li><strong>MapReduce:</strong> factory system assembling index pieces in parallel.</li>
+        </ul>
+    </section>
+
+    <section id="definitions" class="content-card">
+        <h2>10. Exam-Ready Definitions</h2>
+        <p><strong>Document-Partitioned Index</strong>: an index distributed across machines where each machine stores postings lists for a subset of documents, enabling parallel query processing.</p>
+        <p><strong>Term-Partitioned Index</strong>: an index distributed by dividing vocabulary across machines, where each machine stores postings for a subset of terms.</p>
+        <p><strong>MapReduce</strong>: a distributed computing model consisting of Map and Reduce phases used to build large-scale inverted indexes in parallel.</p>
+        <p class="important-box">If you'd like, I can explain top-k merging, distributed BM25 ranking, or fault tolerance in cluster search systems.</p>
+    </section>
+
+    <section id="mr-example" class="content-card">
+        <h2>11. Worked Example: MapReduce Indexing</h2>
+        <p>Assume we have three documents:</p>
+        <div class="code-container">
+            <div class="code-header">Documents</div>
+            <pre>Doc1 (ID=1): "cat dog"
+Doc2 (ID=2): "dog fish"
+Doc3 (ID=3): "cat fish"</pre>
+        </div>
+
+        <h3>Map Phase</h3>
+        <div class="code-container">
+            <div class="code-header">Map outputs</div>
+            <pre>(cat, 1)
+(dog, 1)
+(dog, 2)
+(fish, 2)
+(cat, 3)
+(fish, 3)</pre>
+        </div>
+
+        <h3>Shuffle Phase</h3>
+        <div class="code-container">
+            <div class="code-header">Grouped by term</div>
+            <pre>cat  → [1, 3]
+dog  → [1, 2]
+fish → [2, 3]</pre>
+        </div>
+
+        <h3>Reduce Phase</h3>
+        <div class="code-container">
+            <div class="code-header">Final inverted index</div>
+            <pre>cat  → [1, 3]
+dog  → [1, 2]
+fish → [2, 3]</pre>
+        </div>
+
+        <p class="important-box">Map emits (term, docID), Shuffle groups by term, Reduce builds postings lists.</p>
+    </section>
+</main>
+
+<footer>
+    <p>&copy; 2024 Your Name. All rights reserved.</p>
+</footer>
+
+</body>
+</html>
