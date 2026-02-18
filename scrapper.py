@@ -136,33 +136,63 @@ def scrape_nvidia_workday(driver, url):
     return job_listings
 
 
-driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+def merge_locations(job_listings):
+    merged = {}
+    order = []
+    for job in job_listings:
+        key = (job["company"], job["job_title"], job["job_link"])
+        if key not in merged:
+            merged[key] = {
+                "company": job["company"],
+                "job_title": job["job_title"],
+                "job_link": job["job_link"],
+                "location": [],
+            }
+            order.append(key)
+        if job.get("location"):
+            merged[key]["location"].append(job["location"])
 
-job_listings = []
-job_listings.extend(scrape_google_internships(driver))
-job_listings.extend(
-    scrape_nvidia_workday(
-        driver,
-        "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite"
-        "?workerSubType=0c40f6bd1d8f10adf6dae42e46d44a17"
-        "&locationHierarchy1=2fcb99c455831013ea52e9ef1a0032ba"
-        "&locationHierarchy1=2fcb99c455831013ea52adc65f5d3254"
-        "&locationHierarchy1=d21cf68980ad0121a67d319db107a200",
+    results = []
+    for key in order:
+        locations = merged[key]["location"]
+        # Preserve order while de-duplicating
+        seen = set()
+        unique_locations = []
+        for loc in locations:
+            if loc not in seen:
+                seen.add(loc)
+                unique_locations.append(loc)
+        merged[key]["location"] = ", ".join(unique_locations) if unique_locations else "Unknown"
+        results.append(merged[key])
+    return results
+
+
+def main():
+    driver = webdriver.Chrome(service=ChromeService(ChromeDriverManager().install()))
+
+    job_listings = []
+    job_listings.extend(scrape_google_internships(driver))
+    job_listings.extend(
+        scrape_nvidia_workday(
+            driver,
+            "https://nvidia.wd5.myworkdayjobs.com/en-US/NVIDIAExternalCareerSite"
+            "?workerSubType=0c40f6bd1d8f10adf6dae42e46d44a17"
+            "&locationHierarchy1=2fcb99c455831013ea52e9ef1a0032ba"
+            "&locationHierarchy1=2fcb99c455831013ea52adc65f5d3254"
+            "&locationHierarchy1=d21cf68980ad0121a67d319db107a200",
+        )
     )
-)
 
-driver.quit()
+    driver.quit()
 
-if job_listings:
-    df_new = pd.DataFrame(job_listings)
+    if job_listings:
+        job_listings = merge_locations(job_listings)
+        df = pd.DataFrame(job_listings)
 
-    if os.path.exists("google_internships.csv"):
-        df_existing = pd.read_csv("google_internships.csv")
-        df = pd.concat([df_existing, df_new], ignore_index=True)
+        df.to_csv("google_internships.csv", index=False)
+        print("\nSuccessfully saved job data to 'google_internships.csv'")
     else:
-        df = df_new
+        print("No job listings were scraped.")
 
-    df.to_csv("google_internships.csv", index=False)
-    print("\nSuccessfully saved job data to 'google_internships.csv'")
-else:
-    print("No job listings were scraped.")
+
+main()
