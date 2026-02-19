@@ -15,7 +15,7 @@ def scrape_google_internships(driver):
         print(f"Scraping Google page {page_number}...")
         url = (
             "https://www.google.com/about/careers/applications/jobs/results/"
-            f"?distance=50&q=internship&page={page_number}"
+            f"?target_level=INTERN_AND_APPRENTICE&page={page_number}"
         )
         driver.get(url)
         time.sleep(1)
@@ -112,11 +112,13 @@ def scrape_nvidia_workday(driver, url):
                 link = card.get("href") or ""
 
         location_el = card.find(attrs={"data-automation-id": "locations"})
+        
         if not location_el:
             location_el = card.find(attrs={"data-automation-id": "location"})
         if location_el:
             location = location_el.get_text(strip=True)
 
+        # print(f"Location element: {location_el}")
         if not title or not link:
             continue
 
